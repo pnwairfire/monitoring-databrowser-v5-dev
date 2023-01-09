@@ -27,8 +27,11 @@ And view the page at http://localhost:5173/
 Next up we need to install the package dependencies with:
 
 ```
-npm install @square/svelte-store
+# npm packages
 npm install arquero
 npm install moment-timezone
 npm install suncalc
+npm install @square/svelte-store
+# AirFire packages
+npm install github:MazamaScience/air-monitor
 ```

@@ -1,5 +1,5 @@
 // Monitor objects
-import Monitor from '../scripts/air-monitor';
+import Monitor from 'air-monitor';
 
 // NOTE:  The @square/svelte-store replacement for svelte-store is
 // NOTE:  Incredibly helpful for us. The problem it solves is explained here:
