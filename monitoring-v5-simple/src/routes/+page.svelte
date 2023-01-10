@@ -1,9 +1,11 @@
 <script>
   // stores
-  import {all_monitors, selected_id, selected_plot_type} from "../stores/monitor-store.js";
+  import { all_monitors } from "../stores/monitor-data-store.js";
+  import { selected_id, selected_plot_type } from "../stores/gui-store.js";
   // components
   import SelectRandomButton from "../components/SelectRandomButton.svelte";
   import PlotTypeButton from "../components/PlotTypeButton.svelte";
+	import TimeseriesPlot from "../components/TimeseriesPlot.svelte";
 </script>
 
 <!----------------------------------------------------------------------------->
@@ -30,6 +32,8 @@
 </div>
 
 <SelectRandomButton />
+
+<TimeseriesPlot />
 
 <!----------------------------------------------------------------------------->
 

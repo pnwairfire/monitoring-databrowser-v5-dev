@@ -15,10 +15,10 @@ import Monitor from 'air-monitor';
 // NOTE:   always stay up-to-date as data get periodically updated.
 
 // npm install @square/svelte-store --save
-import { asyncReadable, derived, writable } from '@square/svelte-store';
+import { asyncReadable, derived } from '@square/svelte-store';
 
-export let selected_id = writable('');
-export let selected_plot_type = writable('');
+// GUI state is set after all data are loaded
+import { selected_id, selected_plot_type } from './gui-store';
 
 // Reloadable AirNow data
 export const airnow = asyncReadable(

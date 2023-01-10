@@ -1,9 +1,8 @@
 <script>
   export let text = "Time series";
   export let type = "timeseries";
-  import { selected_plot_type } from "../stores/monitor-store";
+  import { selected_plot_type } from "../stores/gui-store.js";
 
-  // TODO:  How to get conditional styling?
   function handleClick() {
     $selected_plot_type = type;
   }
