@@ -1,6 +1,7 @@
 <script>
-  import {all_monitors, selected_id} from "../stores/monitor-store.js";
+  import {all_monitors, selected_id, selected_plot_type} from "../stores/monitor-store.js";
   import SelectRandomButton from "../components/SelectRandomButton.svelte";
+  import PlotTypeButton from "../components/PlotTypeButton.svelte";
 </script>
 
 <h1>Welcome to SvelteKit</h1>
@@ -8,7 +9,12 @@
 {#await all_monitors}
   <p>...loading all_monitors data</p>
 {:then}
-<!-- <p>whew!</p> -->
+  <div>
+    <PlotTypeButton text = "Time series" type = "timeseries" />
+    <PlotTypeButton text = "Daily" type = "daily" />
+    <PlotTypeButton text = "Time of day" type = "diurnal" />
+  </div>
+
   <p>We just created a Monitor. It has {$all_monitors.meta.numRows()} time series;</p>
   <p>The <code>selected_id</code> is {$selected_id}.</p>
 {:catch}
@@ -16,7 +22,7 @@
 {/await}
 
 <div>
-  Howdy howdy!
+  Howdy howdy! The selected plot type is {$selected_plot_type}.
 </div>
 
 <SelectRandomButton />

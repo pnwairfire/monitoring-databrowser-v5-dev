@@ -15,6 +15,7 @@ import Monitor from 'air-monitor';
 import { asyncReadable, derived, writable } from '@square/svelte-store';
 
 export let selected_id = writable('');
+export let selected_plot_type = writable('');
 
 // Reloadable AirNow data
 export const airnow = asyncReadable(
@@ -54,6 +55,7 @@ export const all_monitors = derived([airnow, airsis, wrcc], ([$airnow, $airsis, 
 	let all_monitors = $airnow.combine($airsis).combine($wrcc).dropEmpty();
 
 	selected_id.set(all_monitors.meta.sample(1).get('deviceDeploymentID'));
+	selected_plot_type.set('timeseries');
 
 	return all_monitors;
 });
