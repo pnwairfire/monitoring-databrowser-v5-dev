@@ -4,21 +4,19 @@
   import { selected_plot_type } from "../stores/monitor-store";
 
   // TODO:  How to get conditional styling?
-  export function isChosen() {
-    return(type === $selected_plot_type);
-  }
-
   function handleClick() {
     $selected_plot_type = type;
   }
 </script>
 
-<button on:click={handleClick} class:chosen={isChosen()}>
+<button 
+  on:click={handleClick} 
+  class:selected={$selected_plot_type === type}>
   { text }
 </button>
 
 <style>
-  .chosen {
+  .selected {
     font-weight: bold;
   }
 </style>
