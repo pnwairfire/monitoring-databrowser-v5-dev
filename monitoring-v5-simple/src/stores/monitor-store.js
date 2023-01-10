@@ -1,4 +1,7 @@
-// Monitor objects
+// The air-monitor package encapsulates much of the functionality found in the
+// AirMonitor R package.
+
+// npm install github:MazamaScience/air-monitor
 import Monitor from 'air-monitor';
 
 // NOTE:  The @square/svelte-store replacement for svelte-store is

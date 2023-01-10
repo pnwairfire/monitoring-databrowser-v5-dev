@@ -1,8 +1,12 @@
 <script>
+  // stores
   import {all_monitors, selected_id, selected_plot_type} from "../stores/monitor-store.js";
+  // components
   import SelectRandomButton from "../components/SelectRandomButton.svelte";
   import PlotTypeButton from "../components/PlotTypeButton.svelte";
 </script>
+
+<!----------------------------------------------------------------------------->
 
 <h1>Welcome to SvelteKit</h1>
 
@@ -26,6 +30,8 @@
 </div>
 
 <SelectRandomButton />
+
+<!----------------------------------------------------------------------------->
 
 <style>
   h1 {
