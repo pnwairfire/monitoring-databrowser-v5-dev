@@ -1,4 +1,8 @@
 <script>
+	// Exports
+	export let div_id = 'default-timeseries-plot';
+
+	// Imports
   // Svelte methods
   import { afterUpdate } from 'svelte';
   // Svelte stores
@@ -17,10 +21,11 @@
   let config;
   let context;
   let myChart;
+	// let div_id;
 
   function createChart() {
 
-    context = document.getElementById('timeseries-plot');
+    context = document.getElementById(div_id);
 
     // See https://www.youtube.com/watch?v=s7rk2b1ioVE @ 6:30
     if (myChart) myChart.destroy();
@@ -127,7 +132,7 @@
   afterUpdate(createChart);
 </script>
 
-<div id="timeseries-plot" class="chart-container"></div>
+<div id="{div_id}" class="chart-container"></div>
 
 <style>
   .chart-container {

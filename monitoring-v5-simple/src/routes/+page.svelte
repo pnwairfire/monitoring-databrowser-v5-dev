@@ -29,11 +29,12 @@
   <p>The <code>selected_id</code> is {$selected_id}.</p>
   <p>The <code>selected_plot_type</code> is {$selected_plot_type}.</p>
   {#if $selected_plot_type === "timeseries"}
-    <TimeseriesPlot /> 
+  <TimeseriesPlot div_id="ts-main"/> 
+  <!-- <TimeseriesPlot div_id="ts-secondary"/>  -->
   {:else if $selected_plot_type === "daily"}
-    <DailyBarplot /> 
+    <DailyBarplot div_id="daily-main"/> 
   {:else if $selected_plot_type === "diurnal"}
-    <DiurnalPlot /> 
+    <DiurnalPlot div_id="diurnal-main"/> 
   {/if}
 {/if}
 

@@ -1,4 +1,8 @@
 <script>
+	// Exports
+	export let div_id = 'default-diurnal-plot';
+
+	// Imports
   // Svelte methods
   import { afterUpdate } from 'svelte';
   // Svelte stores
@@ -22,7 +26,7 @@
 
   function createChart() {
 
-    context = document.getElementById('daily-barplot');
+    context = document.getElementById(div_id);
 
     // See https://www.youtube.com/watch?v=s7rk2b1ioVE @ 6:30
     if (myChart) myChart.destroy();
@@ -109,7 +113,7 @@
   afterUpdate(createChart);
 </script>
 
-<div id="daily-barplot" class="chart-container"></div>
+<div id="{div_id}" class="chart-container"></div>
 
 <style>
   .chart-container {
