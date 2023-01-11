@@ -6,6 +6,7 @@
   import SelectRandomButton from "../components/SelectRandomButton.svelte";
   import PlotTypeButton from "../components/PlotTypeButton.svelte";
 	import TimeseriesPlot from "../components/TimeseriesPlot.svelte";
+	import DailyBarplot from "../components/DailyBarplot.svelte";
 </script>
 
 <!----------------------------------------------------------------------------->
@@ -15,20 +16,29 @@
 {#await all_monitors}
   <p>...loading all_monitors data</p>
 {:then}
-  <div>
-    <SelectRandomButton />
-    <PlotTypeButton text = "Time series" type = "timeseries" />
-    <PlotTypeButton text = "Daily" type = "daily" />
-    <PlotTypeButton text = "Time of day" type = "diurnal" />
-  </div>
+<div>
+  <SelectRandomButton />
+  <PlotTypeButton text = "Time series" type = "timeseries" />
+  <PlotTypeButton text = "Daily" type = "daily" />
+  <PlotTypeButton text = "Time of day" type = "diurnal" />
+</div>
 
+{#if $selected_id !== undefined }
   <p>We just created a Monitor. It has {$all_monitors.meta.numRows()} time series;</p>
   <p>The <code>selected_id</code> is {$selected_id}.</p>
+  {#if $selected_plot_type === "timeseries"}
+  <TimeseriesPlot /> 
+  {:else if  $selected_plot_type === "daily"}
 
-  {#if $selected_id !== undefined }
-    <TimeseriesPlot />  
+  <DailyBarplot /> 
   {/if}
+{/if}
 
+<!-- And another one
+
+{#if $selected_id !== undefined }
+  <TimeseriesPlot />  
+{/if} -->
 
 {:catch}
   <p style="color: red">An error occurred</p>

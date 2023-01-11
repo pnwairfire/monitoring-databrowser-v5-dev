@@ -1,6 +1,10 @@
 <script>
-  import Highcharts from 'highcharts';
+  // Svelte methods
   import { afterUpdate } from 'svelte';
+  // Highcharts for plotting
+  import Highcharts from 'highcharts';
+  // moment for timezone-aware date formatting
+  import moment from 'moment-timezone';
   // Stores
   import { all_monitors } from '../stores/monitor-data-store.js';
   import { selected_id } from "../stores/gui-store.js";
@@ -18,7 +22,7 @@
 
   function createChart() {
 
-    context = document.getElementById('timeseries-plot');
+    context = document.getElementById('daily-barplot');
 
     // See https://www.youtube.com/watch?v=s7rk2b1ioVE @ 6:30
     if (myChart) myChart.destroy();
@@ -30,58 +34,47 @@
     // Get required data
     const locationName = monitor.getMetadata(id, 'locationName');
     const timezone = monitor.getMetadata(id, 'timezone');
-    const datetime = monitor.getDatetime();
-    const pm25 = monitor.getPM25(id);
-    const nowcast = monitor.getNowcast(id);
-    const startTime = datetime[0];
-		const xAxis_title = 'Time (' + timezone + ')';
+    const {datetime, avg_pm25} = monitor.getDailyAverageObject(id);
+
+		// Create colored series data
+		// See:  https://stackoverflow.com/questions/35854947/how-do-i-change-a-specific-bar-color-in-highcharts-bar-chart
+		let seriesData = [];
+		for (let i = 0; i < avg_pm25.length; i++) {
+			seriesData[i] = {
+				y: avg_pm25[i],
+				color: pm25ToColor(avg_pm25[i])
+			};
+		}
+
+		let days = datetime.map((x) =>
+			moment.tz(x, timezone).format('MMM DD')
+		);
 
 		// Default to well defined y-axis limits for visual stability
 		const ymin = 0;
-		const ymax = pm25ToYMax(Math.max(...pm25));
+		const ymax = pm25ToYMax(Math.max(...avg_pm25));
 
-    const title = locationName;
+    let title = locationName;
 
     // Here is the chart construction
     config = {
 			accessibility: { enabled: false },
 			chart: {
-				animation: false,
 				plotBorderColor: '#ddd',
 				plotBorderWidth: 1
 			},
 			plotOptions: {
-				series: {
-					animation: false
-				},
-				scatter: {
+				column: {
 					animation: false,
-					marker: { radius: 3, symbol: 'circle', fillColor: '#bbbbbb' }
-				},
-				line: {
-					animation: false,
-					color: '#000',
-					lineWidth: 1,
-					marker: { radius: 1, symbol: 'square', fillColor: 'transparent' }
+					allowPointSelect: true,
+					borderColor: '#666'
 				}
 			},
 			title: {
 				text: title
 			},
-			time: {
-				timezone: timezone
-			},
 			xAxis: {
-				type: 'datetime',
-				// title: {margin: 20, style: { "color": "#333", "fontSize": "16px" }, text: xAxis_title},
-				gridLineColor: '#ddd',
-				gridLineDashStyle: 'Dash',
-				gridLineWidth: 1,
-				minorTicks: true,
-				minorTickInterval: 3 * 3600 * 1000, // every 3 hrs
-				minorGridLineColor: '#eee',
-				minorGridLineDashStyle: 'Dot',
-				minorGridLineWidth: 1
+				categories: days
 			},
 			yAxis: {
 				min: ymin,
@@ -98,21 +91,12 @@
 				enabled: true,
 				verticalAlign: 'top'
 			},
+
 			series: [
 				{
-					name: 'Hourly PM2.5 Values',
-					type: 'scatter',
-					pointInterval: 3600 * 1000,
-					pointStart: startTime.valueOf(), // milliseconds
-					data: pm25
-				},
-				{
-					name: 'Nowcast',
-					type: 'line',
-					lineWidth: 2,
-					pointInterval: 3600 * 1000,
-					pointStart: startTime.valueOf(), // milliseconds
-					data: nowcast
+					name: 'Daily Avg PM2.5',
+					type: 'column',
+					data: seriesData
 				}
 			]
 		};
@@ -125,7 +109,7 @@
   afterUpdate(createChart);
 </script>
 
-<div id="timeseries-plot" class="chart-container"></div>
+<div id="daily-barplot" class="chart-container"></div>
 
 <style>
   .chart-container {
