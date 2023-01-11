@@ -16,6 +16,7 @@
   <p>...loading all_monitors data</p>
 {:then}
   <div>
+    <SelectRandomButton />
     <PlotTypeButton text = "Time series" type = "timeseries" />
     <PlotTypeButton text = "Daily" type = "daily" />
     <PlotTypeButton text = "Time of day" type = "diurnal" />
@@ -23,17 +24,13 @@
 
   <p>We just created a Monitor. It has {$all_monitors.meta.numRows()} time series;</p>
   <p>The <code>selected_id</code> is {$selected_id}.</p>
+
+  <TimeseriesPlot />
+
 {:catch}
   <p style="color: red">An error occurred</p>
 {/await}
 
-<div>
-  Howdy howdy! The selected plot type is {$selected_plot_type}.
-</div>
-
-<SelectRandomButton />
-
-<TimeseriesPlot />
 
 <!----------------------------------------------------------------------------->
 

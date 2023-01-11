@@ -36,3 +36,9 @@ npm install @square/svelte-store
 # AirFire packages
 npm install github:MazamaScience/air-monitor
 ```
+
+## Svelte + Charting Examples
+
+- Simple Highcharts: https://svelte.dev/repl/d283589caa554badb16644ad40682802?version=3.38.2
+- Chart Component: https://www.youtube.com/watch?v=s7rk2b1ioVE
+- Using Actions: https://www.youtube.com/watch?v=HzmaqcsDiP0
