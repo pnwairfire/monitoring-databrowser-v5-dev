@@ -1,6 +1,6 @@
 <script>
   import Highcharts from 'highcharts';
-  import { onMount } from 'svelte';
+  import { afterUpdate } from 'svelte';
   // stores
   import { all_monitors } from '../stores/monitor-data-store.js';
   import { selected_id } from "../stores/gui-store.js";
@@ -79,13 +79,16 @@
     }
 	};
 
+  let context;
+  let myChart;
 
   function createChart() {
-    var figureID = document.getElementById('timeseries-plot');
-    const chart = Highcharts.chart(figureID, config)
+    context = document.getElementById('timeseries-plot');
+    if (myChart) myChart.destroy();
+    myChart = Highcharts.chart(context, config)
   }
 
-  onMount(createChart);
+  afterUpdate(createChart);
 </script>
 
 <div id="timeseries-plot" class="chart-container"></div>
