@@ -7,6 +7,7 @@
   import PlotTypeButton from "../components/PlotTypeButton.svelte";
 	import TimeseriesPlot from "../components/TimeseriesPlot.svelte";
 	import DailyBarplot from "../components/DailyBarplot.svelte";
+	import DiurnalPlot from "../components/DiurnalPlot.svelte";
 </script>
 
 <!----------------------------------------------------------------------------->
@@ -27,10 +28,11 @@
   <p>We just created a Monitor. It has {$all_monitors.meta.numRows()} time series;</p>
   <p>The <code>selected_id</code> is {$selected_id}.</p>
   {#if $selected_plot_type === "timeseries"}
-  <TimeseriesPlot /> 
-  {:else if  $selected_plot_type === "daily"}
-
-  <DailyBarplot /> 
+    <TimeseriesPlot /> 
+    {:else if  $selected_plot_type === "daily"}
+    <DailyBarplot /> 
+    {:else if  $selected_plot_type === "daily"}
+    <DiurnalPlot /> 
   {/if}
 {/if}
 
