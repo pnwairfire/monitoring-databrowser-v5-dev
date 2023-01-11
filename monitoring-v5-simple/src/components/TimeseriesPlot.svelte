@@ -83,9 +83,29 @@
   let myChart;
 
   function createChart() {
+
     context = document.getElementById('timeseries-plot');
     if (myChart) myChart.destroy();
+
+    const locationName = $all_monitors.getMetadata($selected_id, 'locationName');
+    const timezone = $all_monitors.getMetadata($selected_id, 'timezone');
+    const datetime = $all_monitors.getDatetime();
+    // const pm25 = $all_monitors.getPM25($selected_id, 'pm25'););
+    let pm25 = $all_monitors.data
+      .array($selected_id)
+      .map((x) =>
+        x === undefined || x === null || isNaN(x)
+          ? null
+          : Math.round(10 * x) / 10
+      );
+
+    const nowcast = $all_monitors.getNowcast($selected_id);
+
+    config.title.text = locationName + ' (' + timezone + ')';
+
+
     myChart = Highcharts.chart(context, config)
+
   }
 
   afterUpdate(createChart);
