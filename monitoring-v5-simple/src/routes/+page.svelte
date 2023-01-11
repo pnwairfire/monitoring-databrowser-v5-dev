@@ -1,8 +1,8 @@
 <script>
-  // stores
+  // Svelte tores
   import { all_monitors } from "../stores/monitor-data-store.js";
   import { selected_id, selected_plot_type } from "../stores/gui-store.js";
-  // components
+  // Svelte Components
   import SelectRandomButton from "../components/SelectRandomButton.svelte";
   import PlotTypeButton from "../components/PlotTypeButton.svelte";
 	import TimeseriesPlot from "../components/TimeseriesPlot.svelte";
@@ -12,7 +12,7 @@
 
 <!----------------------------------------------------------------------------->
 
-<h1>Welcome to SvelteKit</h1>
+<h1>Monitoring v5 Simple Interface</h1>
 
 {#await all_monitors}
   <p>...loading all_monitors data</p>
@@ -30,9 +30,9 @@
   <p>The <code>selected_plot_type</code> is {$selected_plot_type}.</p>
   {#if $selected_plot_type === "timeseries"}
     <TimeseriesPlot /> 
-  {:else if  $selected_plot_type === "daily"}
+  {:else if $selected_plot_type === "daily"}
     <DailyBarplot /> 
-  {:else if  $selected_plot_type === "diurnal"}
+  {:else if $selected_plot_type === "diurnal"}
     <DiurnalPlot /> 
   {/if}
 {/if}
@@ -40,7 +40,7 @@
 <!-- And another one
 
 {#if $selected_id !== undefined }
-  <TimeseriesPlot />  
+  <DailyBarplot />  
 {/if} -->
 
 {:catch}

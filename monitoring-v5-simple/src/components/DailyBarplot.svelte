@@ -1,13 +1,13 @@
 <script>
   // Svelte methods
   import { afterUpdate } from 'svelte';
+  // Svelte stores
+  import { all_monitors } from '../stores/monitor-data-store.js';
+  import { selected_id } from "../stores/gui-store.js";
   // Highcharts for plotting
   import Highcharts from 'highcharts';
   // moment for timezone-aware date formatting
   import moment from 'moment-timezone';
-  // Stores
-  import { all_monitors } from '../stores/monitor-data-store.js';
-  import { selected_id } from "../stores/gui-store.js";
   // Other functions
   import { pm25ToColor, pm25ToYMax } from "../scripts/plot-utils.js";
 

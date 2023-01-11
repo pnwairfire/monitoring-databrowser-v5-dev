@@ -1,17 +1,17 @@
 <script>
   // Svelte methods
   import { afterUpdate } from 'svelte';
-  // Highcharts for plotting
-  import Highcharts from 'highcharts';
-  // arquero for data manipulation
-  import * as aq from 'arquero';
-  // moment for timezone-aware date formatting
-  import moment from 'moment-timezone';
-  // SunCalc for day-night shading
-  import SunCalc from 'suncalc';
-  // Stores
+  // Svelte stores
   import { all_monitors } from '../stores/monitor-data-store.js';
   import { selected_id } from "../stores/gui-store.js";
+  // Highcharts for plotting
+  import Highcharts from 'highcharts';
+  // moment for timezone-aware date formatting
+  import moment from 'moment-timezone';
+  // arquero for 'dplyr' style data manipulation
+  import * as aq from 'arquero';
+  // SunCalc for day-night shading
+  import SunCalc from 'suncalc';
   // Other functions
   import { pm25ToColor, pm25ToYMax } from "../scripts/plot-utils.js";
 

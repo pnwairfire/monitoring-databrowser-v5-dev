@@ -1,11 +1,13 @@
 <script>
-  import Highcharts from 'highcharts';
+  // Svelte methods
   import { afterUpdate } from 'svelte';
-  // Stores
+  // Svelte stores
   import { all_monitors } from '../stores/monitor-data-store.js';
   import { selected_id } from "../stores/gui-store.js";
+  // Highcharts for plotting
+  import Highcharts from 'highcharts';
   // Other functions
-  import { pm25ToColor, pm25ToYMax } from "../scripts/plot-utils.js";
+  import { pm25ToYMax } from "../scripts/plot-utils.js";
 
   // Good examples to learn from:
   //   https://www.youtube.com/watch?v=s7rk2b1ioVE
