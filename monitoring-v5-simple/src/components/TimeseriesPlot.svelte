@@ -87,9 +87,15 @@
     context = document.getElementById('timeseries-plot');
     if (myChart) myChart.destroy();
 
-    const locationName = $all_monitors.getMetadata($selected_id, 'locationName');
-    const timezone = $all_monitors.getMetadata($selected_id, 'timezone');
-    const datetime = $all_monitors.getDatetime();
+    $: if ( $selected_id !== undefined ) {
+
+          // get a copy of the reactive data and id
+    let monitor = $all_monitors;
+    let id = $selected_id;
+
+    const locationName = monitor.getMetadata(id, 'locationName');
+    const timezone = monitor.getMetadata(id, 'timezone');
+    const datetime = monitor.getDatetime();
     // const pm25 = $all_monitors.getPM25($selected_id, 'pm25'););
     let pm25 = $all_monitors.data
       .array($selected_id)
@@ -99,12 +105,14 @@
           : Math.round(10 * x) / 10
       );
 
-    const nowcast = $all_monitors.getNowcast($selected_id);
+    const nowcast = monitor.getNowcast(id);
 
     config.title.text = locationName + ' (' + timezone + ')';
 
 
     myChart = Highcharts.chart(context, config)
+    }
+
 
   }
 

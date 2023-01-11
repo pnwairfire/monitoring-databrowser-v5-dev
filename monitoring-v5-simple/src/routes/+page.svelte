@@ -25,7 +25,10 @@
   <p>We just created a Monitor. It has {$all_monitors.meta.numRows()} time series;</p>
   <p>The <code>selected_id</code> is {$selected_id}.</p>
 
-  <TimeseriesPlot />
+  {#if selected_id !== undefined }
+    <TimeseriesPlot />  
+  {/if}
+
 
 {:catch}
   <p style="color: red">An error occurred</p>
