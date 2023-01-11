@@ -26,7 +26,7 @@
 
   function createChart() {
 
-    context = document.getElementById('timeseries-plot');
+    context = document.getElementById('diurnal-plot');
 
     // See https://www.youtube.com/watch?v=s7rk2b1ioVE @ 6:30
     if (myChart) myChart.destroy();
@@ -54,8 +54,8 @@
     const sunsetHour = 
         moment.tz(times.sunset, timezone).hour() + 
         moment.tz(times.sunset, timezone).minute() / 60; 
-
-    // Get yesterday/today start/end
+        
+    // Get yeserday/today start/end
     const lastHour = localHours[localHours.length - 1];
     const today_end = localHours.length;
     const today_start = localHours.length - 1 - lastHour;
@@ -79,101 +79,11 @@
     const hour = dt_mean.array('local_hour');
     const hour_mean = dt_mean.array('hour_mean').map(x => x === undefined ? null : Math.round(10 * x) / 10);
 
-
-    // Get required data
-    // const locationName = monitor.getMetadata(id, 'locationName');
-    // const timezone = monitor.getMetadata(id, 'timezone');
-    // const datetime = monitor.getDatetime();
-    // const pm25 = monitor.getPM25(id);
-    // const nowcast = monitor.getNowcast(id);
-    const startTime = datetime[0];
-		// const xAxis_title = 'Time (' + timezone + ')';
-
-    // Default to well defined y-axis limits for visual stability
-		const ymin = 0;
-		const ymax = pm25ToYMax(Math.max(...pm25));
-
     const title = locationName;
-
 
     // Here is the chart construction
     config = {
-			accessibility: { enabled: false },
-			chart: {
-				animation: false,
-				plotBorderColor: '#ddd',
-				plotBorderWidth: 1
-			},
-			plotOptions: {
-				series: {
-					animation: false
-				},
-				scatter: {
-					animation: false,
-					marker: { radius: 3, symbol: 'circle', fillColor: '#bbbbbb' }
-				},
-				line: {
-					animation: false,
-					color: '#000',
-					lineWidth: 1,
-					marker: { radius: 1, symbol: 'square', fillColor: 'transparent' }
-				}
-			},
-			title: {
-				text: title
-			},
-			time: {
-				timezone: timezone
-			},
-			xAxis: {
-				type: 'datetime',
-				// title: {margin: 20, style: { "color": "#333", "fontSize": "16px" }, text: xAxis_title},
-				gridLineColor: '#ddd',
-				gridLineDashStyle: 'Dash',
-				gridLineWidth: 1,
-				minorTicks: true,
-				minorTickInterval: 3 * 3600 * 1000, // every 3 hrs
-				minorGridLineColor: '#eee',
-				minorGridLineDashStyle: 'Dot',
-				minorGridLineWidth: 1
-			},
-			yAxis: {
-				min: ymin,
-				max: ymax,
-				gridLineColor: '#ddd',
-				gridLineDashStyle: 'Dash',
-				gridLineWidth: 1,
-				title: {
-					text: 'PM2.5 (\u00b5g/m\u00b3)'
-				}
-				//plotLines: this.AQI_pm25_lines // horizontal colored lines
-			},
-			legend: {
-				enabled: true,
-				verticalAlign: 'top'
-			},
-			series: [
-				{
-					name: 'Hourly PM2.5 Values',
-					type: 'scatter',
-					pointInterval: 3600 * 1000,
-					pointStart: startTime.valueOf(), // milliseconds
-					data: pm25
-				},
-				{
-					name: 'Nowcast',
-					type: 'line',
-					lineWidth: 2,
-					pointInterval: 3600 * 1000,
-					pointStart: startTime.valueOf(), // milliseconds
-					data: nowcast
-				}
-			]
-		};
-
-
-    config = {
-     accessibility: { enabled: false },
+        accessibility: { enabled: false },
 			chart: {
 				plotBorderColor: '#ddd',
 				plotBorderWidth: 1
@@ -188,30 +98,30 @@
 			},
 			xAxis: {
 				tickInterval: 3,
-			// 	labels: {
-			// 		formatter: function () {
-			// 			var label = this.axis.defaultLabelFormatter.call(this);
-			// 			label =
-			// 				label == '0'
-			// 					? 'Midnight'
-			// 					: label == '3'
-			// 					? '3am'
-			// 					: label == '6'
-			// 					? '6am'
-			// 					: label == '9'
-			// 					? '9am'
-			// 					: label == '12'
-			// 					? 'Noon'
-			// 					: label == '15'
-			// 					? '3pm'
-			// 					: label == '18'
-			// 					? '5pm'
-			// 					: label == '21'
-			// 					? '9pm'
-			// 					: label;
-			// 			return label;
-			// 		}
-			// 	},
+				labels: {
+					formatter: function () {
+						var label = this.axis.defaultLabelFormatter.call(this);
+						label =
+							label == '0'
+								? 'Midnight'
+								: label == '3'
+								? '3am'
+								: label == '6'
+								? '6am'
+								: label == '9'
+								? '9am'
+								: label == '12'
+								? 'Noon'
+								: label == '15'
+								? '3pm'
+								: label == '18'
+								? '5pm'
+								: label == '21'
+								? '9pm'
+								: label;
+						return label;
+					}
+				},
 				plotBands: [
 					{ color: 'rgb(0,0,0,0.1)', from: 0, to: sunriseHour },
 					{ color: 'rgb(0,0,0,0.1)', from: sunsetHour, to: 24 }
@@ -268,7 +178,7 @@
   afterUpdate(createChart);
 </script>
 
-<div id="timeseries-plot" class="chart-container"></div>
+<div id="diurnal-plot" class="chart-container"></div>
 
 <style>
   .chart-container {
