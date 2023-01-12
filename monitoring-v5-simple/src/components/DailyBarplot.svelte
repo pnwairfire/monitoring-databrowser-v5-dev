@@ -10,8 +10,6 @@
   import { selected_id } from "../stores/gui-store.js";
   // Highcharts for plotting
   import Highcharts from 'highcharts';
-  // moment for timezone-aware date formatting
-  import moment from 'moment-timezone';
   // Other functions
   import { dailyBarplotConfig } from "../scripts/plot-utils.js";
 

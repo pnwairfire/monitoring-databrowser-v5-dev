@@ -18,13 +18,14 @@
   import SunCalc from 'suncalc';
   // Other functions
   import { pm25ToColor, pm25ToYMax } from "../scripts/plot-utils.js";
+  import { diurnalPlotConfig } from "../scripts/plot-utils.js";
 
   // Good examples to learn from:
   //   https://www.youtube.com/watch?v=s7rk2b1ioVE
   //   https://svelte.dev/repl/d283589caa554badb16644ad40682802?version=3.38.2
 
   // We need these variables to live on after an individual chart is destroyed
-  let config;
+  let chartConfig;
   let context;
   let myChart;
 
@@ -100,95 +101,23 @@
       todayData[i] = {y: today[i], color: pm25ToColor(today[i])};
     } 
 
-    config = {
-     accessibility: { enabled: false },
-			chart: {
-				plotBorderColor: '#ddd',
-				plotBorderWidth: 1
-			},
-			plotOptions: {
-				line: {
-					animation: false
-				}
-			},
-			title: {
-				text: title
-			},
-			xAxis: {
-				tickInterval: 3,
-				labels: {
-					formatter: function () {
-						var label = this.axis.defaultLabelFormatter.call(this);
-						label =
-							label == '0'
-								? 'Midnight'
-								: label == '3'
-								? '3am'
-								: label == '6'
-								? '6am'
-								: label == '9'
-								? '9am'
-								: label == '12'
-								? 'Noon'
-								: label == '15'
-								? '3pm'
-								: label == '18'
-								? '5pm'
-								: label == '21'
-								? '9pm'
-								: label;
-						return label;
-					}
-				},
-				plotBands: [
-					{ color: 'rgb(0,0,0,0.1)', from: 0, to: sunriseHour },
-					{ color: 'rgb(0,0,0,0.1)', from: sunsetHour, to: 24 }
-				]
-			},
-			yAxis: {
-				min: ymin,
-				max: ymax,
-				gridLineColor: '#ddd',
-				gridLineDashStyle: 'Dash',
-				gridLineWidth: 1,
-				title: {
-					text: 'PM2.5 (\u00b5g/m\u00b3)'
-				},
-				//plotLines: this.AQI_pm25_lines // horizontal colored lines
-			},
-			legend: {
-				enabled: true,
-				verticalAlign: 'top'
-			},
-			series: [
-				{
-					name: '7 Day Mean',
-					type: 'line',
-					data: hour_mean,
-					color: '#aaa',
-					lineWidth: 10,
-					marker: { radius: 1, symbol: 'square', fillColor: 'transparent' }
-				},
-				{
-					name: 'Yesterday',
-					type: 'line',
-					data: yesterdayData,
-					color: '#888',
-					lineWidth: 1,
-					marker: { radius: 4, symbol: 'circle', lineColor: '#888', lineWidth: 1 }
-				},
-				{
-					name: 'Today',
-					type: 'line',
-					data: todayData,
-					color: '#333',
-					lineWidth: 2,
-					marker: { radius: 8, symbol: 'circle', lineColor: '#333', lineWidth: 1 }
-				}
-			]
-		};
 
-    myChart = Highcharts.chart(context, config)
+		const plotData = {
+			hour: hour,
+			hour_mean: hour_mean,
+			yesterday: yesterday,
+			today: today,
+			locationName: monitor.getMetadata(id, 'locationName'),
+			timezone: monitor.getMetadata(id, 'timezone'),
+			sunriseHour: sunriseHour,
+			sunsetHour: sunsetHour,
+			title: undefined  // use default title
+		}
+
+		// Create the chartConfig
+		chartConfig = diurnalPlotConfig(plotData);
+
+    myChart = Highcharts.chart(context, chartConfig)
 
   }
 

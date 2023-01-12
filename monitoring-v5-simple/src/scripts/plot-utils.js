@@ -2,6 +2,113 @@
 import moment from 'moment-timezone';
 
 /**
+ * Returns a timeseries chart configuration.
+ * @param {Object} data The data required to create the chart.
+ */
+export function timeseriesPlotConfig(
+	data = {
+		datetime,
+		pm25,
+		nowcast,
+		locationName,
+		timezone,
+		title
+	}
+) {
+	// ----- Data preparation --------------------------------
+
+	let startTime = data.datetime[0];
+	// let xAxis_title = 'Time (${data.timezone})';
+
+	// Default to well defined y-axis limits for visual stability
+	let ymin = 0;
+	let ymax = pm25ToYMax(Math.max(...data.pm25));
+
+	let title = data.title;
+	if (data.title === undefined) {
+		title = data.locationName;
+	}
+
+	// ----- Chart configuration --------------------------------
+
+	let chartConfig = {
+		accessibility: { enabled: false },
+		chart: {
+			animation: false,
+			plotBorderColor: '#ddd',
+			plotBorderWidth: 1
+		},
+		plotOptions: {
+			series: {
+				animation: false
+			},
+			scatter: {
+				animation: false,
+				marker: { radius: 3, symbol: 'circle', fillColor: '#bbbbbb' }
+			},
+			line: {
+				animation: false,
+				color: '#000',
+				lineWidth: 1,
+				marker: { radius: 1, symbol: 'square', fillColor: 'transparent' }
+			}
+		},
+		title: {
+			text: title
+		},
+		time: {
+			timezone: data.timezone
+		},
+		xAxis: {
+			type: 'datetime',
+			// title: {margin: 20, style: { "color": "#333", "fontSize": "16px" }, text: xAxis_title},
+			gridLineColor: '#ddd',
+			gridLineDashStyle: 'Dash',
+			gridLineWidth: 1,
+			minorTicks: true,
+			minorTickInterval: 3 * 3600 * 1000, // every 3 hrs
+			minorGridLineColor: '#eee',
+			minorGridLineDashStyle: 'Dot',
+			minorGridLineWidth: 1
+		},
+		yAxis: {
+			min: ymin,
+			max: ymax,
+			gridLineColor: '#ddd',
+			gridLineDashStyle: 'Dash',
+			gridLineWidth: 1,
+			title: {
+				text: 'PM2.5 (\u00b5g/m\u00b3)'
+			}
+			//plotLines: this.AQI_pm25_lines // horizontal colored lines
+		},
+		legend: {
+			enabled: true,
+			verticalAlign: 'top'
+		},
+		series: [
+			{
+				name: 'Hourly PM2.5 Values',
+				type: 'scatter',
+				pointInterval: 3600 * 1000,
+				pointStart: startTime.valueOf(), // milliseconds
+				data: data.pm25
+			},
+			{
+				name: 'Nowcast',
+				type: 'line',
+				lineWidth: 2,
+				pointInterval: 3600 * 1000,
+				pointStart: startTime.valueOf(), // milliseconds
+				data: data.nowcast
+			}
+		]
+	};
+
+	return chartConfig;
+}
+
+/**
  * Returns a daily barplot chart configuration.
  * @param {Object} data The data required to create the chart.
  */
@@ -86,31 +193,42 @@ export function dailyBarplotConfig(
 }
 
 /**
- * Returns a timeseries chart configuration.
+ * Returns a diurnal chart configuration.
  * @param {Object} data The data required to create the chart.
  */
-export function timeseriesPlotConfig(
+export function diurnalPlotConfig(
 	data = {
-		datetime,
-		pm25,
-		nowcast,
+		hour,
+		hour_mean,
+		yesterday,
+		today,
 		locationName,
 		timezone,
+		sunriseHour,
+		sunsetHour,
 		title
 	}
 ) {
 	// ----- Data preparation --------------------------------
 
-	let startTime = data.datetime[0];
-	// let xAxis_title = 'Time (${data.timezone})';
-
 	// Default to well defined y-axis limits for visual stability
 	let ymin = 0;
-	let ymax = 50; //pm25ToYMax(Math.max(...data.pm25));
+	let ymax = pm25ToYMax(Math.max(...data.hour_mean, ...data.yesterday, ...data.today));
 
 	let title = data.title;
 	if (data.title === undefined) {
 		title = data.locationName;
+	}
+
+	// Create colored series data
+	// See:  https://stackoverflow.com/questions/35854947/how-do-i-change-a-specific-bar-color-in-highcharts-bar-chart
+	let yesterdayData = [];
+	for (let i = 0; i < data.yesterday.length; i++) {
+		yesterdayData[i] = { y: data.yesterday[i], color: pm25ToColor(data.yesterday[i]) };
+	}
+	let todayData = [];
+	for (let i = 0; i < data.today.length; i++) {
+		todayData[i] = { y: data.today[i], color: pm25ToColor(data.today[i]) };
 	}
 
 	// ----- Chart configuration --------------------------------
@@ -118,42 +236,47 @@ export function timeseriesPlotConfig(
 	let chartConfig = {
 		accessibility: { enabled: false },
 		chart: {
-			animation: false,
 			plotBorderColor: '#ddd',
 			plotBorderWidth: 1
 		},
 		plotOptions: {
-			series: {
-				animation: false
-			},
-			scatter: {
-				animation: false,
-				marker: { radius: 3, symbol: 'circle', fillColor: '#bbbbbb' }
-			},
 			line: {
-				animation: false,
-				color: '#000',
-				lineWidth: 1,
-				marker: { radius: 1, symbol: 'square', fillColor: 'transparent' }
+				animation: false
 			}
 		},
 		title: {
 			text: title
 		},
-		time: {
-			timezone: data.timezone
-		},
 		xAxis: {
-			type: 'datetime',
-			// title: {margin: 20, style: { "color": "#333", "fontSize": "16px" }, text: xAxis_title},
-			gridLineColor: '#ddd',
-			gridLineDashStyle: 'Dash',
-			gridLineWidth: 1,
-			minorTicks: true,
-			minorTickInterval: 3 * 3600 * 1000, // every 3 hrs
-			minorGridLineColor: '#eee',
-			minorGridLineDashStyle: 'Dot',
-			minorGridLineWidth: 1
+			tickInterval: 3,
+			labels: {
+				formatter: function () {
+					var label = this.axis.defaultLabelFormatter.call(this);
+					label =
+						label == '0'
+							? 'Midnight'
+							: label == '3'
+							? '3am'
+							: label == '6'
+							? '6am'
+							: label == '9'
+							? '9am'
+							: label == '12'
+							? 'Noon'
+							: label == '15'
+							? '3pm'
+							: label == '18'
+							? '5pm'
+							: label == '21'
+							? '9pm'
+							: label;
+					return label;
+				}
+			},
+			plotBands: [
+				{ color: 'rgb(0,0,0,0.1)', from: 0, to: data.sunriseHour },
+				{ color: 'rgb(0,0,0,0.1)', from: data.sunsetHour, to: 24 }
+			]
 		},
 		yAxis: {
 			min: ymin,
@@ -172,19 +295,28 @@ export function timeseriesPlotConfig(
 		},
 		series: [
 			{
-				name: 'Hourly PM2.5 Values',
-				type: 'scatter',
-				pointInterval: 3600 * 1000,
-				pointStart: startTime.valueOf(), // milliseconds
-				data: data.pm25
+				name: '7 Day Mean',
+				type: 'line',
+				data: data.hour_mean,
+				color: '#aaa',
+				lineWidth: 10,
+				marker: { radius: 1, symbol: 'square', fillColor: 'transparent' }
 			},
 			{
-				name: 'Nowcast',
+				name: 'Yesterday',
 				type: 'line',
+				data: yesterdayData,
+				color: '#888',
+				lineWidth: 1,
+				marker: { radius: 4, symbol: 'circle', lineColor: '#888', lineWidth: 1 }
+			},
+			{
+				name: 'Today',
+				type: 'line',
+				data: todayData,
+				color: '#333',
 				lineWidth: 2,
-				pointInterval: 3600 * 1000,
-				pointStart: startTime.valueOf(), // milliseconds
-				data: data.nowcast
+				marker: { radius: 8, symbol: 'circle', lineColor: '#333', lineWidth: 1 }
 			}
 		]
 	};
