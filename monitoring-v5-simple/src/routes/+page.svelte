@@ -28,21 +28,21 @@
   <p>We just created a Monitor. It has {$all_monitors.meta.numRows()} time series;</p>
   <p>The <code>selected_id</code> is {$selected_id}.</p>
   <p>The <code>selected_plot_type</code> is {$selected_plot_type}.</p>
-  {#if $selected_plot_type === "timeseries"}
+  <!-- {#if $selected_plot_type === "timeseries"}
   <TimeseriesPlot div_id="ts-main"/> 
-  <!-- <TimeseriesPlot div_id="ts-secondary"/>  -->
   {:else if $selected_plot_type === "daily"}
     <DailyBarplot div_id="daily-main"/> 
   {:else if $selected_plot_type === "diurnal"}
     <DiurnalPlot div_id="diurnal-main"/> 
-  {/if}
+  {/if} -->
+  <p>And now for a row of charts</p>
+  <div>
+    <TimeseriesPlot div_id="ts-row1"/>
+    <DailyBarplot div_id="daily-row1"/>
+    <DiurnalPlot div_id="diurnal-row1"/>
+  </div>
 {/if}
 
-<!-- And another one
-
-{#if $selected_id !== undefined }
-  <DailyBarplot />  
-{/if} -->
 
 {:catch}
   <p style="color: red">An error occurred</p>

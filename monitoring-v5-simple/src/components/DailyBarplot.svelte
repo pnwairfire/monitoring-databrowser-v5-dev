@@ -113,10 +113,18 @@
   afterUpdate(createChart);
 </script>
 
-<div id="{div_id}" class="chart-container"></div>
+<div class="chart-wrapper">
+	<div id="{div_id}" class="chart-container"></div>
+</div>
 
 <style>
+	.chart-wrapper {
+		display: inline-block;
+		/* width: 300px;
+		height: 300px; */
+	}
   .chart-container {
+		display: inline-block;
     border: 2px solid black;
   }
 </style>

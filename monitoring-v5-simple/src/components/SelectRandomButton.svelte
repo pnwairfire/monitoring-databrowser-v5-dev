@@ -3,7 +3,6 @@
   import { selected_id } from "../stores/gui-store.js";
 
 	function selectRandom() {
-		// console.log("after selected_id: %s", selected_id);
 		let ids = $all_monitors.getIDs();
 		if (ids.length > 0) {
 			let random_id = ids[Math.floor(Math.random() * ids.length)];
