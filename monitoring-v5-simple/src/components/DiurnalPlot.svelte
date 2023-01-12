@@ -197,7 +197,8 @@
 </script>
 
 <div class="chart-wrapper">
-	<div id="{div_id}" class="chart-container"></div>
+	<div id="{div_id}" class="chart-container" 
+	     style="width: 400px; height: 300px;"></div>
 </div>
 
 <style>

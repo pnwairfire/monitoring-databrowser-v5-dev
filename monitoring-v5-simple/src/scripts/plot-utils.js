@@ -1,3 +1,85 @@
+// moment for timezone-aware date formatting
+import moment from 'moment-timezone';
+
+export function dailyBarplotConfig(
+	data = {
+		daily_datetime,
+		daily_avg_pm25,
+		locationName,
+		timezone,
+		title
+	}
+) {
+	// ----- Data preparation --------------------------------
+	// Default to well defined y-axis limits for visual stability
+	let ymin = 0;
+	let ymax = pm25ToYMax(Math.max(...data.daily_avg_pm25));
+
+	let title = data.title;
+	if (data.title === undefined) {
+		title = data.locationName;
+	}
+
+	// Create colored series data
+	// See:  https://stackoverflow.com/questions/35854947/how-do-i-change-a-specific-bar-color-in-highcharts-bar-chart
+	let seriesData = [];
+	for (let i = 0; i < data.daily_avg_pm25.length; i++) {
+		seriesData[i] = {
+			y: data.daily_avg_pm25[i],
+			color: pm25ToColor(data.daily_avg_pm25[i])
+		};
+	}
+
+	let days = data.daily_datetime.map((x) => moment.tz(x, data.timezone).format('MMM DD'));
+
+	let chartConfig = {
+		accessibility: { enabled: false },
+		chart: {
+			plotBorderColor: '#ddd',
+			plotBorderWidth: 1
+		},
+		plotOptions: {
+			column: {
+				animation: false,
+				allowPointSelect: true,
+				borderColor: '#666'
+			}
+		},
+		title: {
+			text: title
+		},
+		xAxis: {
+			categories: days
+		},
+		yAxis: {
+			min: ymin,
+			max: ymax,
+			gridLineColor: '#ddd',
+			gridLineDashStyle: 'Dash',
+			gridLineWidth: 1,
+			title: {
+				text: 'PM2.5 (\u00b5g/m\u00b3)'
+			}
+			//plotLines: this.AQI_pm25_lines // horizontal colored lines
+		},
+		legend: {
+			enabled: true,
+			verticalAlign: 'top'
+		},
+		series: [
+			{
+				name: 'Daily Avg PM2.5',
+				type: 'column',
+				data: seriesData
+			}
+		]
+	};
+
+	return chartConfig;
+}
+
+// ----------------------------------------------------------------
+
 export function timeseriesPlotConfig(
 	data = {
 		datetime,
@@ -14,9 +96,6 @@ export function timeseriesPlotConfig(
 	// Default to well defined y-axis limits for visual stability
 	let ymin = 0;
 	let ymax = 50; //pm25ToYMax(Math.max(...data.pm25));
-
-	// TODO:  Have a way to omit the title if '' but create a default title
-	// TODO:  if undefined.
 
 	let title = data.title;
 	if (data.title === undefined) {

@@ -21,7 +21,6 @@
   let chartConfig;
   let context;
   let myChart;
-	// let div_id;
 
   function createChart() {
 
@@ -34,7 +33,7 @@
     const monitor = $all_monitors;
     const id = $selected_id;
 
-		// Get required data from the monitor object
+		// Get required plot data from the monitor object
 		const plotData = {
 			datetime: monitor.getDatetime(),
 			pm25: monitor.getPM25(id),
@@ -56,17 +55,16 @@
 </script>
 
 <div class="chart-wrapper">
-	<span id="{div_id}" class="chart-container"></span>
+	<div id="{div_id}" class="chart-container" 
+	     style="width: 400px; height: 300px;"></div>
 </div>
 
 <style>
 	.chart-wrapper {
 		display: inline-block;
-		/* width: 300px;
-		height: 300px; */
 	}
   .chart-container {
 		display: inline-block;
 		border: 2px solid black;
-  }
+	}
 </style>

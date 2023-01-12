@@ -13,14 +13,14 @@
   // moment for timezone-aware date formatting
   import moment from 'moment-timezone';
   // Other functions
-  import { pm25ToColor, pm25ToYMax } from "../scripts/plot-utils.js";
+  import { dailyBarplotConfig } from "../scripts/plot-utils.js";
 
   // Good examples to learn from:
   //   https://www.youtube.com/watch?v=s7rk2b1ioVE
   //   https://svelte.dev/repl/d283589caa554badb16644ad40682802?version=3.38.2
 
   // We need these variables to live on after an individual chart is destroyed
-  let config;
+  let chartConfig;
   let context;
   let myChart;
 
@@ -35,77 +35,21 @@
     const monitor = $all_monitors;
     const id = $selected_id;
 
-    // Get required data
-    const locationName = monitor.getMetadata(id, 'locationName');
-    const timezone = monitor.getMetadata(id, 'timezone');
+    // Special method to get daily averages
     const {datetime, avg_pm25} = monitor.getDailyAverageObject(id);
 
-		// Create colored series data
-		// See:  https://stackoverflow.com/questions/35854947/how-do-i-change-a-specific-bar-color-in-highcharts-bar-chart
-		let seriesData = [];
-		for (let i = 0; i < avg_pm25.length; i++) {
-			seriesData[i] = {
-				y: avg_pm25[i],
-				color: pm25ToColor(avg_pm25[i])
-			};
+		const plotData = {
+			daily_datetime: datetime,
+			daily_avg_pm25: avg_pm25,
+			locationName: monitor.getMetadata(id, 'locationName'),
+			timezone: monitor.getMetadata(id, 'timezone'),
+			title: undefined // use default title
 		}
 
-		let days = datetime.map((x) =>
-			moment.tz(x, timezone).format('MMM DD')
-		);
-
-		// Default to well defined y-axis limits for visual stability
-		const ymin = 0;
-		const ymax = pm25ToYMax(Math.max(...avg_pm25));
-
-    let title = locationName;
-
-    // Here is the chart construction
-    config = {
-			accessibility: { enabled: false },
-			chart: {
-				plotBorderColor: '#ddd',
-				plotBorderWidth: 1
-			},
-			plotOptions: {
-				column: {
-					animation: false,
-					allowPointSelect: true,
-					borderColor: '#666'
-				}
-			},
-			title: {
-				text: title
-			},
-			xAxis: {
-				categories: days
-			},
-			yAxis: {
-				min: ymin,
-				max: ymax,
-				gridLineColor: '#ddd',
-				gridLineDashStyle: 'Dash',
-				gridLineWidth: 1,
-				title: {
-					text: 'PM2.5 (\u00b5g/m\u00b3)'
-				}
-				//plotLines: this.AQI_pm25_lines // horizontal colored lines
-			},
-			legend: {
-				enabled: true,
-				verticalAlign: 'top'
-			},
-
-			series: [
-				{
-					name: 'Daily Avg PM2.5',
-					type: 'column',
-					data: seriesData
-				}
-			]
-		};
-
-    myChart = Highcharts.chart(context, config)
+		// Create the chartConfig
+		chartConfig = dailyBarplotConfig(plotData);
+		
+    myChart = Highcharts.chart(context, chartConfig)
 
   }
 
@@ -114,14 +58,13 @@
 </script>
 
 <div class="chart-wrapper">
-	<div id="{div_id}" class="chart-container"></div>
+	<div id="{div_id}" class="chart-container" 
+	     style="width: 400px; height: 300px;"></div>
 </div>
 
 <style>
 	.chart-wrapper {
 		display: inline-block;
-		/* width: 300px;
-		height: 300px; */
 	}
   .chart-container {
 		display: inline-block;
