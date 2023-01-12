@@ -1,6 +1,10 @@
 // moment for timezone-aware date formatting
 import moment from 'moment-timezone';
 
+/**
+ * Returns a daily barplot chart configuration.
+ * @param {Object} data The data required to create the chart.
+ */
 export function dailyBarplotConfig(
 	data = {
 		daily_datetime,
@@ -11,6 +15,7 @@ export function dailyBarplotConfig(
 	}
 ) {
 	// ----- Data preparation --------------------------------
+
 	// Default to well defined y-axis limits for visual stability
 	let ymin = 0;
 	let ymax = pm25ToYMax(Math.max(...data.daily_avg_pm25));
@@ -31,6 +36,8 @@ export function dailyBarplotConfig(
 	}
 
 	let days = data.daily_datetime.map((x) => moment.tz(x, data.timezone).format('MMM DD'));
+
+	// ----- Chart configuration --------------------------------
 
 	let chartConfig = {
 		accessibility: { enabled: false },
@@ -78,8 +85,10 @@ export function dailyBarplotConfig(
 	return chartConfig;
 }
 
-// ----------------------------------------------------------------
-
+/**
+ * Returns a timeseries chart configuration.
+ * @param {Object} data The data required to create the chart.
+ */
 export function timeseriesPlotConfig(
 	data = {
 		datetime,
@@ -90,6 +99,8 @@ export function timeseriesPlotConfig(
 		title
 	}
 ) {
+	// ----- Data preparation --------------------------------
+
 	let startTime = data.datetime[0];
 	// let xAxis_title = 'Time (${data.timezone})';
 
@@ -101,6 +112,8 @@ export function timeseriesPlotConfig(
 	if (data.title === undefined) {
 		title = data.locationName;
 	}
+
+	// ----- Chart configuration --------------------------------
 
 	let chartConfig = {
 		accessibility: { enabled: false },

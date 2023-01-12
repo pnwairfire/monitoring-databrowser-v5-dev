@@ -19,9 +19,11 @@
 {:then}
 <div>
   <SelectRandomButton />
+  <!-- 
   <PlotTypeButton text = "Time series" type = "timeseries" />
   <PlotTypeButton text = "Daily" type = "daily" />
   <PlotTypeButton text = "Time of day" type = "diurnal" />
+  -->
 </div>
 
 {#if $selected_id !== undefined }
