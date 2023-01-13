@@ -1,6 +1,8 @@
 <script>
 	// Exports
 	export let element_id = 'default-timeseries-plot';
+  export let width = '400px';
+  export let height = '300px';
 
 	// Imports
   // Svelte methods
@@ -58,7 +60,7 @@
 <!-- Note that sizing needs to be included as part of the element style. -->
 <div class="chart-wrapper">
 	<div id="{element_id}" class="chart-container" 
-	     style="width: 400px; height: 300px;"></div>
+	     style="width: {width}; height: {height};"></div>
 </div>
 
 <style>

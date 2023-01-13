@@ -38,9 +38,9 @@
     <DiurnalPlot element_id="diurnal-main"/> 
   {/if} -->
   <div>
-    <TimeseriesPlot element_id="ts-row1"/>
-    <DailyBarplot element_id="daily-row1"/>
-    <DiurnalPlot element_id="diurnal-row1"/>
+    <TimeseriesPlot element_id="ts-row1" width="400px"/>
+    <DailyBarplot element_id="daily-row1" width="400px"/>
+    <DiurnalPlot element_id="diurnal-row1" width="400px"/>
   </div>
 {/if}
 
