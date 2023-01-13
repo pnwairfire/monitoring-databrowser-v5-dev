@@ -1,6 +1,6 @@
 <script>
 	// Exports
-	export let div_id = 'default-timeseries-plot';
+	export let element_id = 'default-timeseries-plot';
 
 	// Imports
   // Svelte methods
@@ -24,16 +24,16 @@
 
   function createChart() {
 
-    context = document.getElementById(div_id);
+    context = document.getElementById(element_id);
 
-    // See https://www.youtube.com/watch?v=s7rk2b1ioVE @ 6:30
+    // See https://www.youtube.com/watch?v=s7rk2b1ioVE @6:30
     if (myChart) myChart.destroy();
 
     // Get a copy of the reactive data and id
     const monitor = $all_monitors;
     const id = $selected_id;
 
-		// Get required plot data from the monitor object
+		// Assemble required plot data
 		const plotData = {
 			datetime: monitor.getDatetime(),
 			pm25: monitor.getPM25(id),
@@ -46,6 +46,7 @@
 		// Create the chartConfig
 		chartConfig = timeseriesPlotConfig(plotData);
 		
+    // Create the chart
     myChart = Highcharts.chart(context, chartConfig)
 
   }
@@ -54,8 +55,9 @@
   afterUpdate(createChart);
 </script>
 
+<!-- Note that sizing needs to be included as part of the element style. -->
 <div class="chart-wrapper">
-	<div id="{div_id}" class="chart-container" 
+	<div id="{element_id}" class="chart-container" 
 	     style="width: 400px; height: 300px;"></div>
 </div>
 

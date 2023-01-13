@@ -4,7 +4,7 @@
   import { selected_id, selected_plot_type } from "../stores/gui-store.js";
   // Svelte Components
   import SelectRandomButton from "../components/SelectRandomButton.svelte";
-  import PlotTypeButton from "../components/PlotTypeButton.svelte";
+  // import PlotTypeButton from "../components/PlotTypeButton.svelte";
 	import TimeseriesPlot from "../components/TimeseriesPlot.svelte";
 	import DailyBarplot from "../components/DailyBarplot.svelte";
 	import DiurnalPlot from "../components/DiurnalPlot.svelte";
@@ -27,21 +27,20 @@
 </div>
 
 {#if $selected_id !== undefined }
-  <p>We just created a Monitor. It has {$all_monitors.meta.numRows()} time series;</p>
+  <!-- <p>We just created a Monitor. It has {$all_monitors.meta.numRows()} time series;</p> -->
   <p>The <code>selected_id</code> is {$selected_id}.</p>
-  <p>The <code>selected_plot_type</code> is {$selected_plot_type}.</p>
+  <!-- <p>The <code>selected_plot_type</code> is {$selected_plot_type}.</p> -->
   <!-- {#if $selected_plot_type === "timeseries"}
-  <TimeseriesPlot div_id="ts-main"/> 
+  <TimeseriesPlot element_id="ts-main"/> 
   {:else if $selected_plot_type === "daily"}
-    <DailyBarplot div_id="daily-main"/> 
+    <DailyBarplot element_id="daily-main"/> 
   {:else if $selected_plot_type === "diurnal"}
-    <DiurnalPlot div_id="diurnal-main"/> 
+    <DiurnalPlot element_id="diurnal-main"/> 
   {/if} -->
-  <p>And now for a row of charts</p>
   <div>
-    <TimeseriesPlot div_id="ts-row1"/>
-    <DailyBarplot div_id="daily-row1"/>
-    <DiurnalPlot div_id="diurnal-row1"/>
+    <TimeseriesPlot element_id="ts-row1"/>
+    <DailyBarplot element_id="daily-row1"/>
+    <DiurnalPlot element_id="diurnal-row1"/>
   </div>
 {/if}
 

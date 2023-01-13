@@ -1,6 +1,6 @@
 <script>
 	// Exports
-	export let div_id = 'default-daily-barplot';
+	export let element_id = 'default-daily-barplot';
 
 	// Imports
   // Svelte methods
@@ -10,7 +10,7 @@
   import { selected_id } from "../stores/gui-store.js";
   // Highcharts for plotting
   import Highcharts from 'highcharts';
-  // moment for timezone-aware date formatting
+  // moment for timezone-aware date calculations
   import moment from 'moment-timezone';
   // SunCalc for day-night shading
   import SunCalc from 'suncalc';
@@ -28,9 +28,9 @@
 
   function createChart() {
 
-    context = document.getElementById(div_id);
+    context = document.getElementById(element_id);
 
-    // See https://www.youtube.com/watch?v=s7rk2b1ioVE @ 6:30
+    // See https://www.youtube.com/watch?v=s7rk2b1ioVE @6:30
     if (myChart) myChart.destroy();
 
     // Get a copy of the reactive data and id
@@ -49,7 +49,7 @@
     const nowcast = monitor.getNowcast(id);
     const localHours = datetime.map(o => moment.tz(o, timezone).hours());
 
-    // Day/Night shading
+    // Calculate day/night shading
     const middleDatetime = datetime[Math.round(datetime.length/2)];
     const times = SunCalc.getTimes(middleDatetime.valueOf(), latitude, longitude);
     const sunriseHour = 
@@ -59,7 +59,7 @@
         moment.tz(times.sunset, timezone).hour() + 
         moment.tz(times.sunset, timezone).minute() / 60; 
 
-    // Get yesterday/today start/end
+    // Calculate yesterday/today start/end
     const lastHour = localHours[localHours.length - 1];
     const today_end = localHours.length;
     const today_start = localHours.length - 1 - lastHour;
@@ -69,6 +69,7 @@
     const yesterday = nowcast.slice(yesterday_start, yesterday_end);
     const today = nowcast.slice(today_start, today_end);
 
+		// Assemble required plot data
 		const plotData = {
 			hour: local_hour,
 			hour_mean: avg_pm25,
@@ -84,6 +85,7 @@
 		// Create the chartConfig
 		chartConfig = diurnalPlotConfig(plotData);
 
+    // Create the chart
     myChart = Highcharts.chart(context, chartConfig)
 
   }
@@ -92,8 +94,9 @@
   afterUpdate(createChart);
 </script>
 
+<!-- Note that sizing needs to be included as part of the element style. -->
 <div class="chart-wrapper">
-	<div id="{div_id}" class="chart-container" 
+	<div id="{element_id}" class="chart-container" 
 	     style="width: 400px; height: 300px;"></div>
 </div>
 

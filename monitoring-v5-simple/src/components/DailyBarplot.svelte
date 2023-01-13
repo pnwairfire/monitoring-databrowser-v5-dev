@@ -1,6 +1,6 @@
 <script>
 	// Exports
-	export let div_id = 'default-diurnal-plot';
+	export let element_id = 'default-diurnal-plot';
 
 	// Imports
   // Svelte methods
@@ -24,9 +24,9 @@
 
   function createChart() {
 
-    context = document.getElementById(div_id);
+    context = document.getElementById(element_id);
 
-    // See https://www.youtube.com/watch?v=s7rk2b1ioVE @ 6:30
+    // See https://www.youtube.com/watch?v=s7rk2b1ioVE @6:30
     if (myChart) myChart.destroy();
 
     // Get a copy of the reactive data and id
@@ -36,6 +36,7 @@
     // Special method to get daily averages
     const {datetime, avg_pm25} = monitor.getDailyAverageObject(id);
 
+		// Assemble required plot data
 		const plotData = {
 			daily_datetime: datetime,
 			daily_pm25: avg_pm25,
@@ -48,6 +49,7 @@
 		// Create the chartConfig
 		chartConfig = dailyBarplotConfig(plotData);
 		
+    // Create the chart
     myChart = Highcharts.chart(context, chartConfig)
 
   }
@@ -56,8 +58,9 @@
   afterUpdate(createChart);
 </script>
 
+<!-- Note that sizing needs to be included as part of the element style. -->
 <div class="chart-wrapper">
-	<div id="{div_id}" class="chart-container" 
+	<div id="{element_id}" class="chart-container" 
 	     style="width: 400px; height: 300px;"></div>
 </div>
 
