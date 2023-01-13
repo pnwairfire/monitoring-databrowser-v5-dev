@@ -254,6 +254,9 @@ export function diurnalPlotConfig(
 
 	// Create colored series data
 	// See:  https://stackoverflow.com/questions/35854947/how-do-i-change-a-specific-bar-color-in-highcharts-bar-chart
+
+	// NOTE:  If the chart width specified in the component html  is too small,
+	// NOTE:  large symbols that would bump into each other will not be drawn.
 	let yesterdayData = [];
 	for (let i = 0; i < data.yesterday.length; i++) {
 		yesterdayData[i] = { y: data.yesterday[i], color: pm25ToColor(data.yesterday[i]) };
@@ -340,7 +343,7 @@ export function diurnalPlotConfig(
 				data: yesterdayData,
 				color: '#888',
 				lineWidth: 1,
-				marker: { radius: 4, symbol: 'circle', lineColor: '#888', lineWidth: 1 }
+				marker: { radius: 3, symbol: 'circle', lineColor: '#888', lineWidth: 1 }
 			},
 			{
 				name: 'Today',
@@ -348,7 +351,7 @@ export function diurnalPlotConfig(
 				data: todayData,
 				color: '#333',
 				lineWidth: 2,
-				marker: { radius: 8, symbol: 'circle', lineColor: '#333', lineWidth: 1 }
+				marker: { radius: 5, symbol: 'circle', lineColor: '#333', lineWidth: 1 }
 			}
 		]
 	};

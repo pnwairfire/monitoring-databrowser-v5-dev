@@ -12,12 +12,9 @@
   import Highcharts from 'highcharts';
   // moment for timezone-aware date formatting
   import moment from 'moment-timezone';
-  // arquero for 'dplyr' style data manipulation
-  import * as aq from 'arquero';
   // SunCalc for day-night shading
   import SunCalc from 'suncalc';
   // Other functions
-  import { pm25ToColor, pm25ToYMax } from "../scripts/plot-utils.js";
   import { diurnalPlotConfig } from "../scripts/plot-utils.js";
 
   // Good examples to learn from:
