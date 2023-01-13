@@ -40,6 +40,9 @@
     const monitor = $all_monitors;
     const id = $selected_id;
 
+    // Special method to get diurnal averages
+    const {local_hour, avg_pm25} = monitor.getDiurnalAverageObject(id);
+
     // Get required data
     const locationName = monitor.getMetadata(id, 'locationName');
     const timezone = monitor.getMetadata(id, 'timezone');
@@ -68,9 +71,6 @@
 
     const yesterday = nowcast.slice(yesterday_start, yesterday_end);
     const today = nowcast.slice(today_start, today_end);
-
-    // Special method to get diurnal averages
-    const {local_hour, avg_pm25} = monitor.getDailyAverageObject(id);
 
 		const plotData = {
 			hour: local_hour,
@@ -103,8 +103,6 @@
 <style>
 	.chart-wrapper {
 		display: inline-block;
-		/* width: 300px;
-		height: 300px; */
 	}
   .chart-container {
 		display: inline-block;
