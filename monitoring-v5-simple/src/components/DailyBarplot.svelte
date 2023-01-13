@@ -38,7 +38,8 @@
 
 		const plotData = {
 			daily_datetime: datetime,
-			daily_avg_pm25: avg_pm25,
+			daily_pm25: avg_pm25,
+			daily_nowcast: undefined, // not required
 			locationName: monitor.getMetadata(id, 'locationName'),
 			timezone: monitor.getMetadata(id, 'timezone'),
 			title: undefined // use default title

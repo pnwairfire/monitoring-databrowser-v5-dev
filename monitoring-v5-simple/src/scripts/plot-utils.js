@@ -1,8 +1,39 @@
+/**
+ * The plot-utils module contains functions that generate Highcharts plot
+ * configurations for USFS AirFire "standard" air quality plots. Each ~Config()
+ * function accepts arrays of data as well as a `locationName`, `timezone` and
+ * `title` associated with the time series and returns a configuration Object
+ * which can be passed on to Highcharts:
+ *
+ * ```
+ * const plotData = {
+ *   datetime: [...],
+ *   pm25: [1,4,2,5,3,6],
+ *   nowcast: [1,3,3,4,4,5],
+ *   locationName: 'my location',
+ *   timezone: 'America/Los_Angeles',
+ *   title: undefined // use default title
+ * }
+ *
+ * let context = document.getElementById('my-chart-location');
+ * let chartConfig = diurnalPlotConfig(plotData);
+ * let myChart = Highcharts.chart(context, chartConfig)
+ * ```
+ *
+ * This decoupling of plotting from any specific data model allows us to reuse
+ * the chart configurations. Someone with PurpleAir data need only construct
+ * the `plotData` object with the appropriate `datetime`, `pm25` and `nowcast`
+ * arrays and they can generate the same plot for a PurpleAir sensor.
+ */
+
 // moment for timezone-aware date formatting
 import moment from 'moment-timezone';
 
+// SunCalc for day-night shading
+import SunCalc from 'suncalc';
+
 /**
- * Returns a timeseries chart configuration.
+ * Returns a timeseriesPlot chart configuration.
  * @param {Object} data The data required to create the chart.
  */
 export function timeseriesPlotConfig(
@@ -109,13 +140,14 @@ export function timeseriesPlotConfig(
 }
 
 /**
- * Returns a daily barplot chart configuration.
+ * Returns a dailyBarplot chart configuration.
  * @param {Object} data The data required to create the chart.
  */
 export function dailyBarplotConfig(
 	data = {
 		daily_datetime,
-		daily_avg_pm25,
+		daily_pm25,
+		daily_nowcast,
 		locationName,
 		timezone,
 		title
@@ -125,7 +157,7 @@ export function dailyBarplotConfig(
 
 	// Default to well defined y-axis limits for visual stability
 	let ymin = 0;
-	let ymax = pm25ToYMax(Math.max(...data.daily_avg_pm25));
+	let ymax = pm25ToYMax(Math.max(...data.daily_pm25));
 
 	let title = data.title;
 	if (data.title === undefined) {
@@ -135,10 +167,10 @@ export function dailyBarplotConfig(
 	// Create colored series data
 	// See:  https://stackoverflow.com/questions/35854947/how-do-i-change-a-specific-bar-color-in-highcharts-bar-chart
 	let seriesData = [];
-	for (let i = 0; i < data.daily_avg_pm25.length; i++) {
+	for (let i = 0; i < data.daily_pm25.length; i++) {
 		seriesData[i] = {
-			y: data.daily_avg_pm25[i],
-			color: pm25ToColor(data.daily_avg_pm25[i])
+			y: data.daily_pm25[i],
+			color: pm25ToColor(data.daily_pm25[i])
 		};
 	}
 
@@ -193,7 +225,7 @@ export function dailyBarplotConfig(
 }
 
 /**
- * Returns a diurnal chart configuration.
+ * Returns a diurnalPlot chart configuration.
  * @param {Object} data The data required to create the chart.
  */
 export function diurnalPlotConfig(

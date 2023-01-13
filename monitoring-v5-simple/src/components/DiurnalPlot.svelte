@@ -46,7 +46,6 @@
     const longitude = monitor.getMetadata(id, 'longitude');
     const latitude = monitor.getMetadata(id, 'latitude');
     const datetime = monitor.getDatetime();
-    const pm25 = monitor.getPM25(id);
     const nowcast = monitor.getNowcast(id);
     const localHours = datetime.map(o => moment.tz(o, timezone).hours());
 
@@ -69,46 +68,17 @@
 
     const yesterday = nowcast.slice(yesterday_start, yesterday_end);
     const today = nowcast.slice(today_start, today_end);
-    
-    // Create the average by local_hour data table
-    // NOTE:  Start by trimming to full days in the local timezone
-    const dt_mean = monitor
-        .trimDate(timezone).data     // full days only
-        .slice(-(7*24))              // last 7 full days
-        .select(['datetime', id])
-        .rename(aq.names('datetime', 'pm25'))
-        .derive({local_hour: aq.escape(d => moment.tz(d.datetime, timezone).hours())})
-        .groupby('local_hour').rollup({hour_mean: aq.op.mean('pm25')});
 
-    // NOTE:  Hightcharts will error out if any values are undefined. But null is OK.
-    const hour = dt_mean.array('local_hour');
-    const hour_mean = dt_mean.array('hour_mean').map(x => x === undefined ? null : Math.round(10 * x) / 10);
-
-    // Default to well defined y-axis limits for visual stability
-		const ymin = 0;
-		const ymax = pm25ToYMax(Math.max(...yesterday, ...today));
-
-    const title = locationName;
-
-    // Create colored series data
-    // See:  https://stackoverflow.com/questions/35854947/how-do-i-change-a-specific-bar-color-in-highcharts-bar-chart
-    let yesterdayData = [];
-    for ( let i = 0; i < yesterday.length; i++ ) {
-      yesterdayData[i] = {y: yesterday[i], color: pm25ToColor(yesterday[i])};
-    } 
-    let todayData = [];
-    for ( let i = 0; i < today.length; i++ ) {
-      todayData[i] = {y: today[i], color: pm25ToColor(today[i])};
-    } 
-
+    // Special method to get diurnal averages
+    const {local_hour, avg_pm25} = monitor.getDailyAverageObject(id);
 
 		const plotData = {
-			hour: hour,
-			hour_mean: hour_mean,
+			hour: local_hour,
+			hour_mean: avg_pm25,
 			yesterday: yesterday,
 			today: today,
-			locationName: monitor.getMetadata(id, 'locationName'),
-			timezone: monitor.getMetadata(id, 'timezone'),
+			locationName: locationName,
+			timezone: timezone,
 			sunriseHour: sunriseHour,
 			sunsetHour: sunsetHour,
 			title: undefined  // use default title
