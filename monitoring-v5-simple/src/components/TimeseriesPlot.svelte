@@ -12,8 +12,8 @@
   import { selected_id } from "../stores/gui-store.js";
   // Highcharts for plotting
   import Highcharts from 'highcharts';
-  // Other functions
-  import { timeseriesPlotConfig } from "../scripts/plot-utils.js";
+  // Plot Configuration
+  import { timeseriesPlotConfig } from "air-quality-plots";
 
   // Good examples to learn from:
   //   https://www.youtube.com/watch?v=s7rk2b1ioVE

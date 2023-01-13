@@ -28,6 +28,7 @@
 	"dependencies": {
 		"@square/svelte-store": "^1.0.13",
 		"air-monitor": "github:MazamaScience/air-monitor",
+		"air-quality-plots": "github:pnwairfire/air-quality-plots",
 		"arquero": "^5.1.0",
 		"highcharts": "^10.3.2",
 		"moment-timezone": "^0.5.40",

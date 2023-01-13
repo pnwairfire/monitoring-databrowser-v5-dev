@@ -10,8 +10,8 @@
   import { selected_id } from "../stores/gui-store.js";
   // Highcharts for plotting
   import Highcharts from 'highcharts';
-  // Other functions
-  import { dailyBarplotConfig } from "../scripts/plot-utils.js";
+  // Plot configuration
+  import { dailyBarplotConfig } from "air-quality-plots";
 
   // Good examples to learn from:
   //   https://www.youtube.com/watch?v=s7rk2b1ioVE

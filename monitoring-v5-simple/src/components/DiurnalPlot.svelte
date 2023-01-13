@@ -14,8 +14,8 @@
   import moment from 'moment-timezone';
   // SunCalc for day-night shading
   import SunCalc from 'suncalc';
-  // Other functions
-  import { diurnalPlotConfig } from "../scripts/plot-utils.js";
+  // Plot Configuration
+  import { diurnalPlotConfig } from "air-quality-plots";
 
   // Good examples to learn from:
   //   https://www.youtube.com/watch?v=s7rk2b1ioVE
