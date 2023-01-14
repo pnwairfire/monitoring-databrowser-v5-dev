@@ -1,8 +1,11 @@
 <script>
 	// Exports
 	export let element_id = 'default-diurnal-plot';
+  export let width = '400px';
+  export let height = '300px';
+  export let size = 'big';
 
-	// Imports
+  // Imports
   // Svelte methods
   import { afterUpdate } from 'svelte';
   // Svelte stores
@@ -11,7 +14,11 @@
   // Highcharts for plotting
   import Highcharts from 'highcharts';
   // Plot configuration
-  import { dailyBarplotConfig } from "air-quality-plots";
+  import { 
+    dailyBarplotConfig, 
+    small_dailyBarplotConfig,
+    pm25_addAQIStackedBar, 
+  } from "air-quality-plots";
 
   // Good examples to learn from:
   //   https://www.youtube.com/watch?v=s7rk2b1ioVE
@@ -47,11 +54,16 @@
 		}
 
 		// Create the chartConfig
-		chartConfig = dailyBarplotConfig(plotData);
+    if ( size === 'small' ) {
+      chartConfig = small_dailyBarplotConfig(plotData);
+      myChart = Highcharts.chart(context, chartConfig);
+      pm25_addAQIStackedBar(myChart, 4);
+    } else {
+      chartConfig = dailyBarplotConfig(plotData);
+      myChart = Highcharts.chart(context, chartConfig);
+      pm25_addAQIStackedBar(myChart, 6);
+    }
 		
-    // Create the chart
-    myChart = Highcharts.chart(context, chartConfig)
-
   }
 
   // Regenerate the chart after any update
@@ -61,7 +73,8 @@
 <!-- Note that sizing needs to be included as part of the element style. -->
 <div class="chart-wrapper">
 	<div id="{element_id}" class="chart-container" 
-	     style="width: 400px; height: 300px;"></div>
+       style="width: {width}; height: {height};">
+  </div>
 </div>
 
 <style>

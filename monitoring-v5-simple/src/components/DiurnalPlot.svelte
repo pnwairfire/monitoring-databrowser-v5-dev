@@ -1,6 +1,9 @@
 <script>
 	// Exports
 	export let element_id = 'default-daily-barplot';
+  export let width = '400px';
+  export let height = '300px';
+  export let size = 'big';
 
 	// Imports
   // Svelte methods
@@ -15,7 +18,11 @@
   // SunCalc for day-night shading
   import SunCalc from 'suncalc';
   // Plot Configuration
-  import { diurnalPlotConfig } from "air-quality-plots";
+  import { 
+    diurnalPlotConfig, 
+    small_diurnalPlotConfig,
+    pm25_addAQIStackedBar,
+ } from "air-quality-plots";
 
   // Good examples to learn from:
   //   https://www.youtube.com/watch?v=s7rk2b1ioVE
@@ -40,53 +47,30 @@
     // Special method to get diurnal averages
     const {local_hour, avg_pm25} = monitor.getDiurnalAverageObject(id);
 
-    // Get required data
-    const locationName = monitor.getMetadata(id, 'locationName');
-    const timezone = monitor.getMetadata(id, 'timezone');
-    const longitude = monitor.getMetadata(id, 'longitude');
-    const latitude = monitor.getMetadata(id, 'latitude');
-    const datetime = monitor.getDatetime();
-    const nowcast = monitor.getNowcast(id);
-    const localHours = datetime.map(o => moment.tz(o, timezone).hours());
-
-    // Calculate day/night shading
-    const middleDatetime = datetime[Math.round(datetime.length/2)];
-    const times = SunCalc.getTimes(middleDatetime.valueOf(), latitude, longitude);
-    const sunriseHour = 
-        moment.tz(times.sunrise, timezone).hour() + 
-        moment.tz(times.sunrise, timezone).minute() / 60; 
-    const sunsetHour = 
-        moment.tz(times.sunset, timezone).hour() + 
-        moment.tz(times.sunset, timezone).minute() / 60; 
-
-    // Calculate yesterday/today start/end
-    const lastHour = localHours[localHours.length - 1];
-    const today_end = localHours.length;
-    const today_start = localHours.length - 1 - lastHour;
-    const yesterday_end = today_start;
-    const yesterday_start = today_start - 24;
-
-    const yesterday = nowcast.slice(yesterday_start, yesterday_end);
-    const today = nowcast.slice(today_start, today_end);
-
 		// Assemble required plot data
 		const plotData = {
-			hour: local_hour,
-			hour_mean: avg_pm25,
-			yesterday: yesterday,
-			today: today,
-			locationName: locationName,
-			timezone: timezone,
-			sunriseHour: sunriseHour,
-			sunsetHour: sunsetHour,
-			title: undefined  // use default title
+      datetime: monitor.getDatetime(),
+      pm25: monitor.getPM25(id),
+      nowcast: monitor.getNowcast(id),
+      locationName: monitor.getMetadata(id, 'locationName'),
+      timezone: monitor.getMetadata(id, 'timezone'),
+      title: undefined, // use default title
+      // unique to this chart
+      hour_mean: avg_pm25,
+      longitude: monitor.getMetadata(id, 'longitude'),
+      latitude: monitor.getMetadata(id, 'latitude'),
 		}
 
 		// Create the chartConfig
-		chartConfig = diurnalPlotConfig(plotData);
-
-    // Create the chart
-    myChart = Highcharts.chart(context, chartConfig)
+    if ( size === 'small' ) {
+      chartConfig = small_diurnalPlotConfig(plotData);
+      myChart = Highcharts.chart(context, chartConfig);
+      pm25_addAQIStackedBar(myChart, 4);
+    } else {
+      chartConfig = diurnalPlotConfig(plotData);
+      myChart = Highcharts.chart(context, chartConfig);
+      pm25_addAQIStackedBar(myChart, 6);
+    }
 
   }
 
@@ -97,7 +81,8 @@
 <!-- Note that sizing needs to be included as part of the element style. -->
 <div class="chart-wrapper">
 	<div id="{element_id}" class="chart-container" 
-	     style="width: 400px; height: 300px;"></div>
+       style="width: {width}; height: {height};">
+  </div>
 </div>
 
 <style>

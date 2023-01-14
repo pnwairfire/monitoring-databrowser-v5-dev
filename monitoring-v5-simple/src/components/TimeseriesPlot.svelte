@@ -3,6 +3,7 @@
 	export let element_id = 'default-timeseries-plot';
   export let width = '400px';
   export let height = '300px';
+  export let size = 'big';
 
 	// Imports
   // Svelte methods
@@ -13,7 +14,11 @@
   // Highcharts for plotting
   import Highcharts from 'highcharts';
   // Plot Configuration
-  import { timeseriesPlotConfig } from "air-quality-plots";
+  import { 
+    timeseriesPlotConfig, 
+    small_timeseriesPlotConfig, 
+    pm25_addAQIStackedBar 
+  } from "air-quality-plots";
 
   // Good examples to learn from:
   //   https://www.youtube.com/watch?v=s7rk2b1ioVE
@@ -46,10 +51,15 @@
 		}
 
 		// Create the chartConfig
-		chartConfig = timeseriesPlotConfig(plotData);
-		
-    // Create the chart
-    myChart = Highcharts.chart(context, chartConfig)
+    if ( size === 'small' ) {
+      chartConfig = small_timeseriesPlotConfig(plotData);
+      myChart = Highcharts.chart(context, chartConfig);
+      pm25_addAQIStackedBar(myChart, 4);
+    } else {
+      chartConfig = timeseriesPlotConfig(plotData);
+      myChart = Highcharts.chart(context, chartConfig);
+      pm25_addAQIStackedBar(myChart, 6);
+    }
 
   }
 
@@ -60,7 +70,8 @@
 <!-- Note that sizing needs to be included as part of the element style. -->
 <div class="chart-wrapper">
 	<div id="{element_id}" class="chart-container" 
-	     style="width: {width}; height: {height};"></div>
+	     style="width: {width}; height: {height};">
+  </div>
 </div>
 
 <style>

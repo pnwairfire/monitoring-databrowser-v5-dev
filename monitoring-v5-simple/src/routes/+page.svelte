@@ -42,6 +42,16 @@
     <DailyBarplot element_id="daily-row1" width="400px"/>
     <DiurnalPlot element_id="diurnal-row1" width="400px"/>
   </div>
+  <p>Small Versions:</p>
+  <div>
+    <TimeseriesPlot element_id="ts-row2" width="200px" height="150px" size="small"/>
+    <DailyBarplot element_id="daily-row2" width="200px" height="150px" size="small"/>
+    <DiurnalPlot element_id="diurnal-row2" width="200px" height="150px" size="small"/>
+  </div>
+  <p>One big one</p>
+  <div>
+    <TimeseriesPlot element_id="ts-row3" width="1200px" height="400px"/>
+  </div>
 {/if}
 
 
