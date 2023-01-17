@@ -38,19 +38,17 @@
     <DiurnalPlot element_id="diurnal-main"/> 
   {/if} -->
   <div>
-    <TimeseriesPlot element_id="ts-row1" width="400px"/>
-    <DailyBarplot element_id="daily-row1" width="400px"/>
-    <DiurnalPlot element_id="diurnal-row1" width="400px"/>
+    <TimeseriesPlot element_id="ts-row1" width="400px" height="250px"/>
+    <DailyBarplot element_id="daily-row1" width="400px" height="250px"/>
+    <DiurnalPlot element_id="diurnal-row1" width="400px" height="250px"/>
   </div>
-  <p>Small Versions:</p>
   <div>
-    <TimeseriesPlot element_id="ts-row2" width="200px" height="150px" size="small"/>
-    <DailyBarplot element_id="daily-row2" width="200px" height="150px" size="small"/>
-    <DiurnalPlot element_id="diurnal-row2" width="200px" height="150px" size="small"/>
+    <TimeseriesPlot element_id="ts-row2" width="200px" height="150px" style="small"/>
+    <DailyBarplot element_id="daily-row2" width="200px" height="150px" style="small"/>
+    <DiurnalPlot element_id="diurnal-row2" width="200px" height="150px" style="small"/>
   </div>
-  <p>One big one</p>
   <div>
-    <TimeseriesPlot element_id="ts-row3" width="1200px" height="400px"/>
+    <TimeseriesPlot element_id="ts-row3" width="1200px" height="300px"/>
   </div>
 {/if}
 
