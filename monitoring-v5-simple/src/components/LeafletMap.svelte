@@ -1,17 +1,33 @@
 <script>
+  // Imports
+  // Svelte methods
 	import { onMount, onDestroy } from 'svelte';
+  // Svelte stores
+  import { all_monitors } from '../stores/monitor-data-store.js';
+  import { selected_id } from "../stores/gui-store.js";
+  // Leaflet
   import L from "leaflet";
 
   let map;
 
   function createMap() {
 
+    // Get a copy of the reactive data and id
+    const monitor = $all_monitors;
+    const id = $selected_id;
+
+    // Create the map
     map = L.map('map').setView([40, -100], 10);
 
+    // Add background tiles
     const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
+
+    // // Create and add geojson created from
+    // let monitorGeoJSON = all_monitors.createGeoJSON();
+    // createMonitorLayer(monitorGeoJSON).addTo(map);
 
   }
 

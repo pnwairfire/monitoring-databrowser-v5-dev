@@ -75,6 +75,7 @@
 </div>
 
 <style>
+  /*
 	.chart-wrapper {
 		display: inline-block;
 	}
@@ -82,4 +83,5 @@
 		display: inline-block;
 		border: 2px solid black;
 	}
+  */
 </style>
