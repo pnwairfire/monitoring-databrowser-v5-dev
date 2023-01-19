@@ -3,7 +3,7 @@
 	export let element_id = 'default-timeseries-plot';
   export let width = '400px';
   export let height = '300px';
-  export let style = 'big';
+  export let size = 'big';
 
 	// Imports
   // Svelte methods
@@ -51,7 +51,7 @@
 		}
 
 		// Create the chartConfig
-    if ( style === 'small' ) {
+    if ( size === 'small' ) {
       chartConfig = small_timeseriesPlotConfig(plotData);
       myChart = Highcharts.chart(context, chartConfig);
       pm25_addAQIStackedBar(myChart, 4);

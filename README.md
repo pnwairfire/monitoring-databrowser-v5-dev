@@ -45,3 +45,30 @@ npm install github:pnwairfire/air-monitor-plots
 ## Svelte + Leaflet
 
 - Simple Component: https://dev.to/khromov/using-leaflet-with-sveltekit-3jn1
+
+Things I've tried.
+
+https://www.npmjs.com/package/@sveltehacks/leaflet?activeTab=explore
+
+This looks like a well built modern Svelte component but treats markers as sub-components using Svelte _context_. Not what I'm looking for.
+
+https://dev.to/khromov/using-leaflet-with-sveltekit-3jn1
+
+Just implements leaflet as a full page Svelte app. Not enough details to figure
+out how to make a component.
+
+https://www.npmjs.com/package/svelte-map-leaflet?activeTab=readme
+
+Haven't tried it but it also treats markers as individual components.
+
+### leaflet-svelte
+
+https://www.npmjs.com/package/@anoram/leaflet-svelte
+
+This looks promising with 110 weekly downloads. Last publish 2 years ago.
+
+### svelte-leaflet
+
+https://www.npmjs.com/package/svelte-leafletjs
+
+This looks perhaps more promising with 499 weekly downloads. Last publish 2 months ago.

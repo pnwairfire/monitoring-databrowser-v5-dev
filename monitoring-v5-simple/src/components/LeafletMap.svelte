@@ -1,66 +1,45 @@
-<!--
-  Started by following https://dev.to/khromov/using-leaflet-with-sveltekit-3jn1
--->
 <script>
-  	// Exports
-	export let element_id = 'default-map';
-  export let width = '400px';
-  export let height = '300px';
+	import { onMount, onDestroy } from 'svelte';
+  import L from "leaflet";
 
-  // import { onMount, onDestroy } from 'svelte';
-  // import { browser } from '$app/environment';
+  let map;
 
-  // let mapElement;
-  // let map;
+  function createMap() {
 
-  // onMount(async () => {
-  //   if(browser) {
-  //   const leaflet = await import('leaflet');
+    map = L.map('map').setView([40, -100], 10);
 
-  //   map = leaflet.map(mapElement).setView([51.505, -0.09], 13);
+    const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
 
-  //   leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  //       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  //   }).addTo(map);
+  }
 
-  //   leaflet.marker([51.5, -0.09]).addTo(map)
-  //     .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-  //     .openPopup();
-  //   }
-  // });
+	onMount(createMap);
 
-  // onDestroy(async () => {
-  //   if(map) {
-  //     console.log('Unloading Leaflet map.');
-  //     map.remove();
-  //   }
-  // });
+	onDestroy(() => {
+		if (map) map.remove();
+	});
 </script>
 
+<svelte:head>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+    crossorigin=""
+  />
+</svelte:head>
 
 <div class="map-wrapper">
-	<div id="{element_id}" class="map-container"
-	     style="width: {width}; height: {height};">
-  </div>
+  <div id="map"></div>
 </div>
 
 <style>
 	.map-wrapper {
 		display: inline-block;
-	}
-  .map-container {
-		display: inline-block;
-		border: 2px solid black;
+	}	#map {
+		width: 400px;
+    height: 350px;
 	}
 </style>
-
-<!-- <main>
-  <div bind:this={mapElement}></div>
-</main> -->
-
-<!-- <style>
-  @import 'leaflet/dist/leaflet.css';
-  main div {
-    height: 400px;
-  }
-</style> -->
