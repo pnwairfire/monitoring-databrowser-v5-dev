@@ -3,7 +3,7 @@
 	export let element_id = 'default-daily-barplot';
   export let width = '400px';
   export let height = '300px';
-  export let size = 'big';
+  export let style = 'big';
 
 	// Imports
   // Svelte methods
@@ -62,7 +62,7 @@
 		}
 
 		// Create the chartConfig
-    if ( size === 'small' ) {
+    if ( style === 'small' ) {
       chartConfig = small_diurnalPlotConfig(plotData);
       myChart = Highcharts.chart(context, chartConfig);
       pm25_addAQIStackedBar(myChart, 4);
