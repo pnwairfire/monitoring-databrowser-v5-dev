@@ -8,7 +8,6 @@
 	import TimeseriesPlot from "../components/TimeseriesPlot.svelte";
 	import DailyBarplot from "../components/DailyBarplot.svelte";
 	import DiurnalPlot from "../components/DiurnalPlot.svelte";
-  import LeafletMap from "../components/LeafletMap.svelte";
 </script>
 
 <!----------------------------------------------------------------------------->
@@ -20,7 +19,7 @@
 {:then}
 <div>
   <SelectRandomButton />
-  <!--
+  <!-- 
   <PlotTypeButton text = "Time series" type = "timeseries" />
   <PlotTypeButton text = "Daily" type = "daily" />
   <PlotTypeButton text = "Time of day" type = "diurnal" />
@@ -32,20 +31,27 @@
   <p>The <code>selected_id</code> is {$selected_id}.</p>
   <!-- <p>The <code>selected_plot_type</code> is {$selected_plot_type}.</p> -->
   <!-- {#if $selected_plot_type === "timeseries"}
-  <TimeseriesPlot element_id="ts-main"/>
+  <TimeseriesPlot element_id="ts-main"/> 
   {:else if $selected_plot_type === "daily"}
-    <DailyBarplot element_id="daily-main"/>
+    <DailyBarplot element_id="daily-main"/> 
   {:else if $selected_plot_type === "diurnal"}
-    <DiurnalPlot element_id="diurnal-main"/>
+    <DiurnalPlot element_id="diurnal-main"/> 
   {/if} -->
-
   <div>
-    <LeafletMap element_id="leaflet-main" width="400px"/>
     <TimeseriesPlot element_id="ts-row1" width="400px"/>
-    <!-- <DailyBarplot element_id="daily-row1" width="400px"/>
-    <DiurnalPlot element_id="diurnal-row1" width="400px"/> -->
+    <DailyBarplot element_id="daily-row1" width="400px"/>
+    <DiurnalPlot element_id="diurnal-row1" width="400px"/>
   </div>
-
+  <p>Small Versions:</p>
+  <div>
+    <TimeseriesPlot element_id="ts-row2" width="200px" height="150px" size="small"/>
+    <DailyBarplot element_id="daily-row2" width="200px" height="150px" size="small"/>
+    <DiurnalPlot element_id="diurnal-row2" width="200px" height="150px" size="small"/>
+  </div>
+  <p>One big one</p>
+  <div>
+    <TimeseriesPlot element_id="ts-row3" width="1200px" height="400px"/>
+  </div>
 {/if}
 
 
