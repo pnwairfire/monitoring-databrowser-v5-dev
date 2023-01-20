@@ -18,11 +18,11 @@
   // SunCalc for day-night shading
   import SunCalc from 'suncalc';
   // Plot Configuration
-  import { 
-    diurnalPlotConfig, 
+  import {
+    diurnalPlotConfig,
     small_diurnalPlotConfig,
     pm25_addAQIStackedBar,
- } from "air-monitor-plots";
+  } from "air-monitor-plots";
 
   // Good examples to learn from:
   //   https://www.youtube.com/watch?v=s7rk2b1ioVE
@@ -80,7 +80,7 @@
 
 <!-- Note that sizing needs to be included as part of the element style. -->
 <div class="chart-wrapper">
-	<div id="{element_id}" class="chart-container" 
+	<div id="{element_id}" class="chart-container"
        style="width: {width}; height: {height};">
   </div>
 </div>

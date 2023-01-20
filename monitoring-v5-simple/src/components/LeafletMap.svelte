@@ -68,16 +68,17 @@
         layer.bindPopup(feature.properties.locationName + '<br>' + valueText);
 
         layer.on('mouseover', function (e) {
-          this.openPopup();
+          $selected_id = feature.properties.deviceDeploymentID;
+          // this.openPopup();
         });
 
         layer.on('mouseout', function (e) {
-          this.closePopup();
+          // this.closePopup();
         });
 
-        layer.on('click', function (e) {
-          $selected_id = feature.properties.deviceDeploymentID;
-        });
+        // layer.on('click', function (e) {
+        //   $selected_id = feature.properties.deviceDeploymentID;
+        // });
       }
     });
     return this_layer;
