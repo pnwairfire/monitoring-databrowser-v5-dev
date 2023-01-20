@@ -3,7 +3,7 @@
   import { all_monitors } from "../stores/monitor-data-store.js";
   import { selected_id } from "../stores/gui-store.js";
   // Svelte Components
-  import SelectRandomButton from "../components/SelectRandomButton.svelte";
+  // import SelectRandomButton from "../components/SelectRandomButton.svelte";
   // import PlotTypeButton from "../components/PlotTypeButton.svelte";
 	import TimeseriesPlot from "../components/TimeseriesPlot.svelte";
 	import LeafletMap from "../components/LeafletMap.svelte";
@@ -26,29 +26,22 @@
 {#await all_monitors}
   <p>...loading all_monitors data</p>
 {:then}
-<div>
-  <SelectRandomButton />
 
-</div>
+  {#if $selected_id !== undefined }
 
-{#if $selected_id !== undefined }
-  <p>The <code>selected_id</code> is {$selected_id}.</p>
+    <div class="row">
 
-  <div class="row">
+      <div class="col-sm-4">
+        <LeafletMap />
+      </div>
 
-    <div class="col-sm-4">
-      <LeafletMap />
+      <div class="col-sm-8">
+        <TimeseriesPlot element_id="ts-row1" width="400px"/>
+      </div>
+
     </div>
 
-    <div class="col-sm-8">
-      <TimeseriesPlot element_id="ts-row1" width="400px"/>
-    </div>
-
-  </div>
-
-
-{/if}
-
+  {/if}
 
 {:catch}
   <p style="color: red">An error occurred</p>

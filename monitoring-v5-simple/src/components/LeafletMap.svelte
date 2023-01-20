@@ -7,8 +7,8 @@
   import { selected_id } from "../stores/gui-store.js";
   // Leaflet (NOTE:  Don't put {} around the 'L'!)
   import L from "leaflet";
-  // Custom functions
-  import { createMonitorLayer } from "../scripts/map-utils.js";
+  // Plotting helper functions
+  import { pm25ToColor } from 'air-monitor-plots';
 
   let map;
 
@@ -38,6 +38,50 @@
 	onDestroy(() => {
 		if (map) map.remove();
 	});
+
+  /**
+   * @param {geojson} geojson to be converted to a leaflet layer
+   * @returns
+   */
+  function createMonitorLayer(geojson) {
+    var this_layer = L.geoJSON(geojson, {
+      // Icon appearance
+      pointToLayer: function (feature, latlng) {
+        return L.circleMarker(latlng, {
+          radius: 8,
+          fillColor: pm25ToColor(feature.properties.last_pm25),
+          color: '#000',
+          weight: 1,
+          opacity: 1,
+          fillOpacity: 0.8
+        });
+      },
+
+      // Icon behavior
+      onEachFeature: function (feature, layer) {
+        let valueText;
+        if (isNaN(feature.properties.last_pm25)) {
+          valueText = "<span style='font-style:italic'> no data</span>";
+        } else {
+          valueText = feature.properties.last_pm25 + ' &#xb5;g/m<sup>3</sup>';
+        }
+        layer.bindPopup(feature.properties.locationName + '<br>' + valueText);
+
+        layer.on('mouseover', function (e) {
+          this.openPopup();
+        });
+
+        layer.on('mouseout', function (e) {
+          this.closePopup();
+        });
+
+        layer.on('click', function (e) {
+          $selected_id = feature.properties.deviceDeploymentID;
+        });
+      }
+    });
+    return this_layer;
+  }
 </script>
 
 <svelte:head>
