@@ -40,28 +40,32 @@
     const monitor = $all_monitors;
     const id = $selected_id;
 
-    // Special method to get an object containing daily averages
-    const daily = monitor.getDailyAverage(id);
+    if ( id !== "" ) {
 
-		// Assemble required plot data
-		const plotData = {
-			daily_datetime: daily.datetime,
-			daily_average: daily.average,
-			daily_nowcast: undefined, // not required
-			locationName: monitor.getMetadata(id, 'locationName'),
-			timezone: monitor.getMetadata(id, 'timezone'),
-			title: undefined // use default title
-		}
+      // Special method to get an object containing daily averages
+      const daily = monitor.getDailyAverage(id);
 
-		// Create the chartConfig
-    if ( size === 'small' ) {
-      chartConfig = small_dailyBarplotConfig(plotData);
-      myChart = Highcharts.chart(context, chartConfig);
-      pm25_addAQIStackedBar(myChart, 4);
-    } else {
-      chartConfig = dailyBarplotConfig(plotData);
-      myChart = Highcharts.chart(context, chartConfig);
-      pm25_addAQIStackedBar(myChart, 6);
+      // Assemble required plot data
+      const plotData = {
+        daily_datetime: daily.datetime,
+        daily_average: daily.average,
+        daily_nowcast: undefined, // not required
+        locationName: monitor.getMetadata(id, 'locationName'),
+        timezone: monitor.getMetadata(id, 'timezone'),
+        title: undefined // use default title
+      }
+
+      // Create the chartConfig
+      if ( size === 'small' ) {
+        chartConfig = small_dailyBarplotConfig(plotData);
+        myChart = Highcharts.chart(context, chartConfig);
+        pm25_addAQIStackedBar(myChart, 4);
+      } else {
+        chartConfig = dailyBarplotConfig(plotData);
+        myChart = Highcharts.chart(context, chartConfig);
+        pm25_addAQIStackedBar(myChart, 6);
+      }
+
     }
 
   }

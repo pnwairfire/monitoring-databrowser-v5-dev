@@ -44,32 +44,36 @@
     const monitor = $all_monitors;
     const id = $selected_id;
 
-    // Special method to get an object containing diurnal averages
-    const diurnal = monitor.getDiurnalAverage(id);
+    if ( id !== "" ) {
 
-		// Assemble required plot data
-		const plotData = {
-      datetime: monitor.getDatetime(),
-      pm25: monitor.getPM25(id),
-      nowcast: monitor.getNowcast(id),
-      locationName: monitor.getMetadata(id, 'locationName'),
-      timezone: monitor.getMetadata(id, 'timezone'),
-      title: undefined, // use default title
-      // unique to this chart
-      hour_average: diurnal.average,
-      longitude: monitor.getMetadata(id, 'longitude'),
-      latitude: monitor.getMetadata(id, 'latitude'),
-		}
+      // Special method to get an object containing diurnal averages
+      const diurnal = monitor.getDiurnalAverage(id);
 
-		// Create the chartConfig
-    if ( size === 'small' ) {
-      chartConfig = small_diurnalPlotConfig(plotData);
-      myChart = Highcharts.chart(context, chartConfig);
-      pm25_addAQIStackedBar(myChart, 4);
-    } else {
-      chartConfig = diurnalPlotConfig(plotData);
-      myChart = Highcharts.chart(context, chartConfig);
-      pm25_addAQIStackedBar(myChart, 6);
+      // Assemble required plot data
+      const plotData = {
+        datetime: monitor.getDatetime(),
+        pm25: monitor.getPM25(id),
+        nowcast: monitor.getNowcast(id),
+        locationName: monitor.getMetadata(id, 'locationName'),
+        timezone: monitor.getMetadata(id, 'timezone'),
+        title: undefined, // use default title
+        // unique to this chart
+        hour_average: diurnal.average,
+        longitude: monitor.getMetadata(id, 'longitude'),
+        latitude: monitor.getMetadata(id, 'latitude'),
+      }
+
+      // Create the chartConfig
+      if ( size === 'small' ) {
+        chartConfig = small_diurnalPlotConfig(plotData);
+        myChart = Highcharts.chart(context, chartConfig);
+        pm25_addAQIStackedBar(myChart, 4);
+      } else {
+        chartConfig = diurnalPlotConfig(plotData);
+        myChart = Highcharts.chart(context, chartConfig);
+        pm25_addAQIStackedBar(myChart, 6);
+      }
+
     }
 
   }

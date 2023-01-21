@@ -40,27 +40,29 @@
     const monitor = $all_monitors;
     const id = $selected_id;
 
-    console.log("selected id: " + id);
+    if ( id !== "" ) {
 
-		// Assemble required plot data
-		const plotData = {
-			datetime: monitor.getDatetime(),
-			pm25: monitor.getPM25(id),
-			nowcast: monitor.getNowcast(id),
-			locationName: monitor.getMetadata(id, 'locationName'),
-			timezone: monitor.getMetadata(id, 'timezone'),
-			title: undefined // use default title
-		}
+      // Assemble required plot data
+      const plotData = {
+        datetime: monitor.getDatetime(),
+        pm25: monitor.getPM25(id),
+        nowcast: monitor.getNowcast(id),
+        locationName: monitor.getMetadata(id, 'locationName'),
+        timezone: monitor.getMetadata(id, 'timezone'),
+        title: undefined // use default title
+      }
 
-		// Create the chartConfig
-    if ( size === 'small' ) {
-      chartConfig = small_timeseriesPlotConfig(plotData);
-      myChart = Highcharts.chart(context, chartConfig);
-      pm25_addAQIStackedBar(myChart, 4);
-    } else {
-      chartConfig = timeseriesPlotConfig(plotData);
-      myChart = Highcharts.chart(context, chartConfig);
-      pm25_addAQIStackedBar(myChart, 6);
+      // Create the chartConfig
+      if ( size === 'small' ) {
+        chartConfig = small_timeseriesPlotConfig(plotData);
+        myChart = Highcharts.chart(context, chartConfig);
+        pm25_addAQIStackedBar(myChart, 4);
+      } else {
+        chartConfig = timeseriesPlotConfig(plotData);
+        myChart = Highcharts.chart(context, chartConfig);
+        pm25_addAQIStackedBar(myChart, 6);
+      }
+
     }
 
   }
