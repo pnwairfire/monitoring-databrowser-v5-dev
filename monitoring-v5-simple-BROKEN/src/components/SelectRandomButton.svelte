@@ -1,6 +1,6 @@
 <script>
-  import { all_monitors } from '../stores/monitor-data-store.js';
-  import { selected_id } from '../stores/gui-store.js';
+	import { all_monitors } from '../stores/monitor-data-store.js';
+  import { selected_id } from "../stores/gui-store.js";
 
 	function selectRandom() {
 		let ids = $all_monitors.getIDs();

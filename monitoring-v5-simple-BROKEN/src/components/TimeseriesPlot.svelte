@@ -10,7 +10,7 @@
   import { afterUpdate } from 'svelte';
   // Svelte stores
   import { all_monitors } from '../stores/monitor-data-store.js';
-  import { selected_id } from '../stores/gui-store.js';
+  import { selected_id } from "../stores/gui-store.js";
   // Highcharts for plotting
   import Highcharts from 'highcharts';
   // Plot Configuration
@@ -77,6 +77,7 @@
 </div>
 
 <style>
+  /*
 	.chart-wrapper {
 		display: inline-block;
 	}
@@ -84,4 +85,5 @@
 		display: inline-block;
 		border: 2px solid black;
 	}
+  */
 </style>

@@ -30,6 +30,7 @@ Next up we need to install the package dependencies with:
 # npm packages
 npm install arquero highcharts moment-timezone suncalc
 npm install @square/svelte-store
+npm install leaflet
 # AirFire packages
 npm install github:MazamaScience/air-monitor-algorithms
 npm install github:MazamaScience/air-monitor

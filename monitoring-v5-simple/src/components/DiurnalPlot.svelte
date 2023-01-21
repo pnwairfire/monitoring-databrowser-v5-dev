@@ -10,7 +10,7 @@
   import { afterUpdate } from 'svelte';
   // Svelte stores
   import { all_monitors } from '../stores/monitor-data-store.js';
-  import { selected_id } from "../stores/gui-store.js";
+  import { selected_id } from '../stores/gui-store.js';
   // Highcharts for plotting
   import Highcharts from 'highcharts';
   // moment for timezone-aware date calculations

@@ -10,14 +10,14 @@
   import { afterUpdate } from 'svelte';
   // Svelte stores
   import { all_monitors } from '../stores/monitor-data-store.js';
-  import { selected_id } from "../stores/gui-store.js";
+  import { selected_id } from '../stores/gui-store.js';
   // Highcharts for plotting
   import Highcharts from 'highcharts';
   // Plot configuration
-  import { 
-    dailyBarplotConfig, 
+  import {
+    dailyBarplotConfig,
     small_dailyBarplotConfig,
-    pm25_addAQIStackedBar, 
+    pm25_addAQIStackedBar,
   } from "air-monitor-plots";
 
   // Good examples to learn from:
@@ -63,7 +63,7 @@
       myChart = Highcharts.chart(context, chartConfig);
       pm25_addAQIStackedBar(myChart, 6);
     }
-		
+
   }
 
   // Regenerate the chart after any update
@@ -72,7 +72,7 @@
 
 <!-- Note that sizing needs to be included as part of the element style. -->
 <div class="chart-wrapper">
-	<div id="{element_id}" class="chart-container" 
+	<div id="{element_id}" class="chart-container"
        style="width: {width}; height: {height};">
   </div>
 </div>

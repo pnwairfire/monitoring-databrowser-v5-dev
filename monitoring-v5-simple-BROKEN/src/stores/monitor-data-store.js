@@ -17,6 +17,9 @@ import Monitor from 'air-monitor';
 // npm install @square/svelte-store --save
 import { asyncReadable, derived } from '@square/svelte-store';
 
+// GUI state is set after all data are loaded
+import { selected_id, selected_plot_type } from './gui-store';
+
 // Reloadable AirNow data
 export const airnow = asyncReadable(
 	new Monitor(),
@@ -50,9 +53,12 @@ export const wrcc = asyncReadable(
 	{ reloadable: true }
 );
 
-// All monitors combined (changes whenever any underlying data changes)
+// All monitors combined (only returns after all "parent" items return)
 export const all_monitors = derived([airnow, airsis, wrcc], ([$airnow, $airsis, $wrcc]) => {
 	let all_monitors = $airnow.combine($airsis).combine($wrcc).dropEmpty();
-	console.log("Initial loaded all_monitors with '" + all_monitors.count() + ' time series');
+
+	selected_id.set(all_monitors.meta.sample(1).get('deviceDeploymentID'));
+	selected_plot_type.set('timeseries');
+
 	return all_monitors;
 });

@@ -4,7 +4,7 @@
 	import { onMount, onDestroy } from 'svelte';
   // Svelte stores
   import { all_monitors } from '../stores/monitor-data-store.js';
-  import { selected_id } from '../stores/gui-store.js';
+  import { selected_id } from "../stores/gui-store.js";
   // Leaflet (NOTE:  Don't put {} around the 'L'!)
   import L from "leaflet";
   // Plotting helper functions
@@ -16,6 +16,7 @@
 
     // Get a copy of the reactive data and id
     const monitor = $all_monitors;
+    const id = $selected_id;
 
     // Create the map
     map = L.map('map').setView([40, -120], 8);

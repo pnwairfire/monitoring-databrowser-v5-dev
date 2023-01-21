@@ -1,23 +1,23 @@
 <script>
 	// Exports
-	export let element_id = 'default-timeseries-plot';
+	export let element_id = 'default-diurnal-plot';
   export let width = '400px';
   export let height = '300px';
   export let size = 'big';
 
-	// Imports
+  // Imports
   // Svelte methods
   import { afterUpdate } from 'svelte';
   // Svelte stores
   import { all_monitors } from '../stores/monitor-data-store.js';
-  import { selected_id } from '../stores/gui-store.js';
+  import { selected_id } from "../stores/gui-store.js";
   // Highcharts for plotting
   import Highcharts from 'highcharts';
-  // Plot Configuration
-  import {
-    timeseriesPlotConfig,
-    small_timeseriesPlotConfig,
-    pm25_addAQIStackedBar
+  // Plot configuration
+  import { 
+    dailyBarplotConfig, 
+    small_dailyBarplotConfig,
+    pm25_addAQIStackedBar, 
   } from "air-monitor-plots";
 
   // Good examples to learn from:
@@ -40,13 +40,14 @@
     const monitor = $all_monitors;
     const id = $selected_id;
 
-    console.log("selected id: " + id);
+    // Special method to get an object containing daily averages
+    const daily = monitor.getDailyAverage(id);
 
 		// Assemble required plot data
 		const plotData = {
-			datetime: monitor.getDatetime(),
-			pm25: monitor.getPM25(id),
-			nowcast: monitor.getNowcast(id),
+			daily_datetime: daily.datetime,
+			daily_average: daily.average,
+			daily_nowcast: undefined, // not required
 			locationName: monitor.getMetadata(id, 'locationName'),
 			timezone: monitor.getMetadata(id, 'timezone'),
 			title: undefined // use default title
@@ -54,15 +55,15 @@
 
 		// Create the chartConfig
     if ( size === 'small' ) {
-      chartConfig = small_timeseriesPlotConfig(plotData);
+      chartConfig = small_dailyBarplotConfig(plotData);
       myChart = Highcharts.chart(context, chartConfig);
       pm25_addAQIStackedBar(myChart, 4);
     } else {
-      chartConfig = timeseriesPlotConfig(plotData);
+      chartConfig = dailyBarplotConfig(plotData);
       myChart = Highcharts.chart(context, chartConfig);
       pm25_addAQIStackedBar(myChart, 6);
     }
-
+		
   }
 
   // Regenerate the chart after any update
@@ -71,8 +72,8 @@
 
 <!-- Note that sizing needs to be included as part of the element style. -->
 <div class="chart-wrapper">
-	<div id="{element_id}" class="chart-container"
-	     style="width: {width}; height: {height};">
+	<div id="{element_id}" class="chart-container" 
+       style="width: {width}; height: {height};">
   </div>
 </div>
 
@@ -82,6 +83,6 @@
 	}
   .chart-container {
 		display: inline-block;
-		border: 2px solid black;
-	}
+    border: 2px solid black;
+  }
 </style>
