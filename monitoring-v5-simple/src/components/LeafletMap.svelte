@@ -1,4 +1,8 @@
 <script>
+	// Exports
+  export let width = '400px';
+  export let height = '400px';
+
   // Imports
   // Svelte methods
 	import { onMount, onDestroy } from 'svelte';
@@ -76,7 +80,7 @@
         });
 
         layer.on('click', function (e) {
-          $selected_id = feature.properties.deviceDeploymentID;
+          selected_id.set(feature.properties.deviceDeploymentID);
         });
       }
     });
@@ -93,15 +97,11 @@
   />
 </svelte:head>
 
-<div class="map-wrapper">
-  <div id="map"></div>
+<!-- Note that sizing needs to be included as part of the element style. -->
+<div id="map"
+      style="width: {width}; height: {height};">
 </div>
 
 <style>
-	.map-wrapper {
-		display: inline-block;
-	}	#map {
-		width: 400px;
-    height: 350px;
-	}
+
 </style>

@@ -27,11 +27,13 @@
   {:then}
     <p>Your loaded data has {$all_monitors.count()} time series.</p>
     <div>
-      <LeafletMap />
+      <LeafletMap width="1200px" height="400px"/>
     </div>
     {#if selected_id !== "" }
     <div>
-      <TimeseriesPlot element_id="ts-row1" width="400px"/>
+      <TimeseriesPlot element_id="r1_timeseries" width="400px"/>
+      <DailyBarplot element_id="r1_daily" width="400px"/>
+      <DiurnalPlot element_id="r1_diurnal" width="400px"/>
     </div>
     {/if}
   {/await}

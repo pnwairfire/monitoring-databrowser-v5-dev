@@ -79,18 +79,10 @@
 </script>
 
 <!-- Note that sizing needs to be included as part of the element style. -->
-<div class="chart-wrapper">
-	<div id="{element_id}" class="chart-container"
-       style="width: {width}; height: {height};">
-  </div>
+<div id="{element_id}" class="chart-container"
+      style="width: {width}; height: {height};">
 </div>
 
 <style>
-	.chart-wrapper {
-		display: inline-block;
-	}
-  .chart-container {
-		display: inline-block;
-    border: 2px solid black;
-  }
+
 </style>
