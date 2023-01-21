@@ -11,14 +11,6 @@
   import LeafletMap from "../components/LeafletMap.svelte";
 </script>
 
-<svelte:head>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
-    crossorigin="anonymous"
-  >
-</svelte:head>
 
 <!----------------------------------------------------------------------------->
 
@@ -28,17 +20,28 @@
   <p>Loading monitoring data...</p>
 {:then}
 
-  <p>Showing monitoring data for {$all_monitors.count()} locations.</p>
+  <p>
+    Showing {$all_monitors.count()} monitoring locations.
+    &nbsp;&nbsp;
+    Hover over a location to generate plots.
+  </p>
+
   <div>
     <LeafletMap width="1200px" height="400px"/>
   </div>
+
   {#if selected_id !== "" }
-  <div>
+  <div class="plot-row">
     <TimeseriesPlot element_id="r1_timeseries" width="400px"/>
     <DailyBarplot element_id="r1_daily" width="400px"/>
     <DiurnalPlot element_id="r1_diurnal" width="400px"/>
   </div>
   {/if}
+
+
+
+
+
 
 {:catch}
 <p style="color: red">An error occurred</p>
@@ -49,5 +52,8 @@
 <style>
   h1 {
     color: coral;
+  }
+  .plot-row {
+    display: flex;
   }
 </style>
