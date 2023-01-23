@@ -32,8 +32,8 @@ npm install arquero highcharts moment-timezone suncalc
 npm install @square/svelte-store
 npm install leaflet
 # AirFire packages
-npm install github:MazamaScience/air-monitor-algorithms
 npm install github:MazamaScience/air-monitor
+npm install github:MazamaScience/air-monitor-algorithms
 npm install github:pnwairfire/air-monitor-plots
 ```
 
@@ -73,3 +73,57 @@ This looks promising with 110 weekly downloads. Last publish 2 years ago.
 https://www.npmjs.com/package/svelte-leafletjs
 
 This looks perhaps more promising with 499 weekly downloads. Last publish 2 months ago.
+
+## Rendering static pages
+
+Following example at:
+
+https://dev.to/robertobutti/how-to-start-building-your-static-website-with-svelte-and-tailwindcss-hbk
+
+```
+npm i -D @sveltejs/adapter-static@latest
+npm i svelte-preprocess
+npm i postcss-load-config
+```
+
+Update `svelte.config.js` as described in the web page above.
+
+Also see:
+
+https://kit.svelte.dev/docs/adapter-static
+
+\*\*Lots of problems whose solutions involve more and more software bundles.(())
+
+_Should I switch to using Svelte w/o SvelteKit?_
+
+## Svelte-only app
+
+https://akashmittal.com/install-svelte-create-project/
+
+Need to add this to ingest arquero .json files.
+
+```
+npm i -D @rollup/plugin-json
+```
+
+Now you need to edit `rollup.config.js` to look like this:
+
+```
+import json from "@rollup/plugin-json";
+...
+export default {
+    plugins: [
+        commonjs(),
+        json(),      // <---- put after commonjs
+    ]
+}
+...
+```
+
+Now `run build` should work to generate a complete site in the `public/`
+directory.
+
+Before deploying, edit `public/index.html` to use relative paths for the .css
+and .js files.
+
+Then just deploy as a static site!
