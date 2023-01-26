@@ -18,11 +18,9 @@
   more(Highcharts);
   // Plot configuration
   import {
-    // dailyRangeBarplotConfig,
-    // small_dailyRangeBarplotConfig,
-    pm25ToYMax, pm25_AQILines,
+    dailyRangeBarplotConfig,
+    small_dailyRangeBarplotConfig,
     pm25_addAQIStackedBar,
-    pm25ToColor,
   } from "air-monitor-plots";
 
 
@@ -54,167 +52,23 @@
       const daily = monitor.getDailyStats(id);
 
       // Assemble required plot data
-      // const plotData = {
-      const data = {
+      const plotData = {
         daily_datetime: daily.datetime,
         daily_min: daily.min,
         daily_mean: daily.mean,
         daily_max: daily.max,
-        daily_nowcast: undefined, // not required
         locationName: monitor.getMetadata(id, 'locationName'),
         timezone: monitor.getMetadata(id, 'timezone'),
-        title: undefined // use default title
+        title: '' // use default title
       }
-
-
-
-  // let seriesData = [];
-  // for (let i = 0; i < data.daily_average.length; i++) {
-  //   seriesData[i] = {
-  //     y: data.daily_average[i],
-  //     color: pm25ToColor(data.daily_average[i]),
-  //   };
-  // }
-
-  let days = data.daily_datetime.map((x) =>
-    moment.tz(x, data.timezone).format("MMM DD")
-  );
-
-  // Default to well defined y-axis limits for visual stability
-  let ymin = 0;
-  let ymax = pm25ToYMax(Math.max(...daily.max));
-
-  let title = data.title;
-  if (data.title === undefined) {
-    title = data.locationName;
-  }
-
-  let dailyMean = [];
-  for (let i = 0; i < daily.datetime.length; i++) {
-    dailyMean[i] = { y: daily.mean[i], color: pm25ToColor(daily.mean[i]) };
-  }
-
-  let dailyRange = [];
-  for (let i = 0; i < daily.datetime.length; i ++) {
-    dailyRange[i] = [data.daily_min[i], data.daily_max[i]]
-  }
-
-  // ----- Chart configuration --------------------------------
-
-  // let chartConfig = {
-  //   accessibility: { enabled: false },
-  //   chart: {
-  //     plotBorderColor: "#ddd",
-  //     plotBorderWidth: 1,
-  //   },
-  //   plotOptions: {
-  //     column: {
-  //       animation: false,
-  //       allowPointSelect: true,
-  //       borderColor: "#666",
-  //       borderWidth: 1,
-  //     },
-  //   },
-  //   title: {
-  //     text: title,
-  //   },
-  //   xAxis: {
-  //     categories: days,
-  //   },
-  //   yAxis: {
-  //     min: ymin,
-  //     max: ymax,
-  //     gridLineColor: "#ddd",
-  //     gridLineDashStyle: "Dash",
-  //     gridLineWidth: 1,
-  //     title: {
-  //       text: "PM2.5 (\u00b5g/m\u00b3)",
-  //     },
-  //     plotLines: pm25_AQILines(2),
-  //   },
-  //   legend: {
-  //     enabled: true,
-  //     verticalAlign: "top",
-  //   },
-  //   series: [
-  //     {
-  //       name: "Daily Average PM2.5",
-  //       type: "column",
-  //       data: seriesData,
-  //     },
-  //   ],
-  // };
-
-  let chartConfig = {
-    accessibility: { enabled: false },
-    chart: {
-      // type: 'columnrange',
-      // inverted: false
-    },
-    plotOptions: {
-      columnrange: {
-        animation: false,
-        // allowPointSelect: true,
-        // borderColor: "#666",
-        // borderWidth: 1,
-      },
-    },
-    title: {
-      text: title
-    },
-      xAxis: {
-      categories: days,
-    },
-    yAxis: {
-      min: ymin,
-      max: ymax,
-      gridLineColor: "#ddd",
-      gridLineDashStyle: "Dash",
-      gridLineWidth: 1,
-      title: {
-        text: "PM2.5 (\u00b5g/m\u00b3)",
-      },
-      plotLines: pm25_AQILines(2),
-    },
-    legend: {
-      enabled: true,
-      verticalAlign: "top",
-    },
-
-
-    series: [
-      {
-        name: 'Daily Range',
-        type: "columnrange",
-        data: dailyRange,
-        color: "#bbb"
-      },
-      {
-        name: 'Daily Mean',
-        type: "scatter",
-        data: dailyMean,
-        animation: false,
-        marker: {
-          radius: 3,
-          symbol: "circle",
-          lineColor: "#333",
-          lineWidth: 0.5,
-        },
-      }
-    ]
-  };
-
-
-
-
 
       // Create the chartConfig
       if ( size === 'small' ) {
-        // chartConfig = small_dailyRangeBarplotConfig(plotData);
+        chartConfig = small_dailyRangeBarplotConfig(plotData);
         myChart = Highcharts.chart(context, chartConfig);
         pm25_addAQIStackedBar(myChart, 4);
       } else {
-        // chartConfig = dailyRangeBarplotConfig(plotData);
+        chartConfig = dailyRangeBarplotConfig(plotData);
         myChart = Highcharts.chart(context, chartConfig);
         pm25_addAQIStackedBar(myChart, 6);
       }

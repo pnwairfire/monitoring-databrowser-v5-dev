@@ -15,14 +15,21 @@ import Monitor from "air-monitor";
 // NOTE:   always stay up-to-date as data get periodically updated.
 
 // npm install @square/svelte-store --save
-import { asyncReadable, derived } from "@square/svelte-store";
+import { asyncReadable, derived, writable } from "@square/svelte-store";
+
+export const airnowLoadTime = writable(1000);
 
 // Reloadable AirNow data
 export const airnow = asyncReadable(
   new Monitor(),
   async () => {
     const monitor = new Monitor();
+    let start = Date.now();
     await monitor.loadDaily("airnow");
+    let end = Date.now();
+    let elapsed = (end - start) / 1000;
+    let rounded = Math.round(10 * elapsed) / 10;
+    airnowLoadTime.set(rounded);
     return monitor;
   },
   { reloadable: true }

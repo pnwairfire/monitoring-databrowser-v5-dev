@@ -20,7 +20,6 @@
     pm25_addAQIStackedBar,
   } from "air-monitor-plots";
 
-  import moment from "moment-timezone";
 
 
   // Good examples to learn from:
@@ -51,11 +50,11 @@
       // Assemble required plot data
       const plotData = {
         daily_datetime: daily.datetime,
-        daily_average: daily.mean,
+        daily_mean: daily.mean,
         daily_nowcast: undefined, // not required
         locationName: monitor.getMetadata(id, 'locationName'),
         timezone: monitor.getMetadata(id, 'timezone'),
-        title: undefined // use default title
+        title: '' // use default title
       }
 
       // Create the chartConfig

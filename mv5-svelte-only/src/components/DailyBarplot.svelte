@@ -48,7 +48,7 @@
       // Assemble required plot data
       const plotData = {
         daily_datetime: daily.datetime,
-        daily_average: daily.mean,
+        daily_mean: daily.mean,
         daily_nowcast: undefined, // not required
         locationName: monitor.getMetadata(id, 'locationName'),
         timezone: monitor.getMetadata(id, 'timezone'),
