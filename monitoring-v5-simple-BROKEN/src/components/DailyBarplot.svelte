@@ -14,10 +14,10 @@
   // Highcharts for plotting
   import Highcharts from 'highcharts';
   // Plot configuration
-  import { 
-    dailyBarplotConfig, 
+  import {
+    dailyBarplotConfig,
     small_dailyBarplotConfig,
-    pm25_addAQIStackedBar, 
+    pm25_addAQIStackedBar,
   } from "air-monitor-plots";
 
   // Good examples to learn from:
@@ -41,12 +41,12 @@
     const id = $selected_id;
 
     // Special method to get an object containing daily averages
-    const daily = monitor.getDailyAverage(id);
+    const daily = monitor.getDailyStats(id);
 
 		// Assemble required plot data
 		const plotData = {
 			daily_datetime: daily.datetime,
-			daily_average: daily.average,
+			daily_average: daily.mean,
 			daily_nowcast: undefined, // not required
 			locationName: monitor.getMetadata(id, 'locationName'),
 			timezone: monitor.getMetadata(id, 'timezone'),
@@ -63,7 +63,7 @@
       myChart = Highcharts.chart(context, chartConfig);
       pm25_addAQIStackedBar(myChart, 6);
     }
-		
+
   }
 
   // Regenerate the chart after any update
@@ -72,7 +72,7 @@
 
 <!-- Note that sizing needs to be included as part of the element style. -->
 <div class="chart-wrapper">
-	<div id="{element_id}" class="chart-container" 
+	<div id="{element_id}" class="chart-container"
        style="width: {width}; height: {height};">
   </div>
 </div>

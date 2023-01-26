@@ -1,11 +1,11 @@
 <script>
 	// Exports
-	export let element_id = 'default-diurnal-plot';
+	export let element_id = 'default-timeseries-plot';
   export let width = '400px';
   export let height = '300px';
   export let size = 'big';
 
-  // Imports
+	// Imports
   // Svelte methods
   import { afterUpdate } from 'svelte';
   // Svelte stores
@@ -13,11 +13,11 @@
   import { selected_id } from '../stores/gui-store.js';
   // Highcharts for plotting
   import Highcharts from 'highcharts';
-  // Plot configuration
+  // Plot Configuration
   import {
-    dailyBarplotConfig,
-    small_dailyBarplotConfig,
-    pm25_addAQIStackedBar,
+    timeseriesPlotConfig,
+    small_timeseriesPlotConfig,
+    pm25_addAQIStackedBar
   } from "air-monitor-plots";
 
   // Good examples to learn from:
@@ -42,14 +42,11 @@
 
     if ( id !== "" ) {
 
-      // Special method to get an object containing daily averages
-      const daily = monitor.getDailyStats(id);
-
       // Assemble required plot data
       const plotData = {
-        daily_datetime: daily.datetime,
-        daily_average: daily.mean,
-        daily_nowcast: undefined, // not required
+        datetime: monitor.getDatetime(),
+        pm25: monitor.getPM25(id),
+        nowcast: monitor.getNowcast(id),
         locationName: monitor.getMetadata(id, 'locationName'),
         timezone: monitor.getMetadata(id, 'timezone'),
         title: undefined // use default title
@@ -57,11 +54,11 @@
 
       // Create the chartConfig
       if ( size === 'small' ) {
-        chartConfig = small_dailyBarplotConfig(plotData);
+        chartConfig = small_timeseriesPlotConfig(plotData);
         myChart = Highcharts.chart(context, chartConfig);
         pm25_addAQIStackedBar(myChart, 4);
       } else {
-        chartConfig = dailyBarplotConfig(plotData);
+        chartConfig = timeseriesPlotConfig(plotData);
         myChart = Highcharts.chart(context, chartConfig);
         pm25_addAQIStackedBar(myChart, 6);
       }
@@ -82,3 +79,4 @@
 <style>
 
 </style>
+

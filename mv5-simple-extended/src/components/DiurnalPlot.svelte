@@ -5,7 +5,7 @@
   export let height = '300px';
   export let size = 'big';
 
-  // Imports
+	// Imports
   // Svelte methods
   import { afterUpdate } from 'svelte';
   // Svelte stores
@@ -13,10 +13,14 @@
   import { selected_id } from '../stores/gui-store.js';
   // Highcharts for plotting
   import Highcharts from 'highcharts';
-  // Plot configuration
+  // moment for timezone-aware date calculations
+  import moment from 'moment-timezone';
+  // SunCalc for day-night shading
+  import SunCalc from 'suncalc';
+  // Plot Configuration
   import {
-    dailyBarplotConfig,
-    small_dailyBarplotConfig,
+    diurnalPlotConfig,
+    small_diurnalPlotConfig,
     pm25_addAQIStackedBar,
   } from "air-monitor-plots";
 
@@ -42,26 +46,30 @@
 
     if ( id !== "" ) {
 
-      // Special method to get an object containing daily averages
-      const daily = monitor.getDailyStats(id);
+      // Special method to get an object containing diurnal averages
+      const diurnal = monitor.getDiurnalStats(id);
 
       // Assemble required plot data
       const plotData = {
-        daily_datetime: daily.datetime,
-        daily_average: daily.mean,
-        daily_nowcast: undefined, // not required
+        datetime: monitor.getDatetime(),
+        pm25: monitor.getPM25(id),
+        nowcast: monitor.getNowcast(id),
         locationName: monitor.getMetadata(id, 'locationName'),
         timezone: monitor.getMetadata(id, 'timezone'),
-        title: undefined // use default title
+        title: undefined, // use default title
+        // unique to this chart
+        hour_average: diurnal.mean,
+        longitude: monitor.getMetadata(id, 'longitude'),
+        latitude: monitor.getMetadata(id, 'latitude'),
       }
 
       // Create the chartConfig
       if ( size === 'small' ) {
-        chartConfig = small_dailyBarplotConfig(plotData);
+        chartConfig = small_diurnalPlotConfig(plotData);
         myChart = Highcharts.chart(context, chartConfig);
         pm25_addAQIStackedBar(myChart, 4);
       } else {
-        chartConfig = dailyBarplotConfig(plotData);
+        chartConfig = diurnalPlotConfig(plotData);
         myChart = Highcharts.chart(context, chartConfig);
         pm25_addAQIStackedBar(myChart, 6);
       }

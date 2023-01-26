@@ -18,8 +18,8 @@
   // SunCalc for day-night shading
   import SunCalc from 'suncalc';
   // Plot Configuration
-  import { 
-    diurnalPlotConfig, 
+  import {
+    diurnalPlotConfig,
     small_diurnalPlotConfig,
     pm25_addAQIStackedBar,
  } from "air-monitor-plots";
@@ -45,7 +45,7 @@
     const id = $selected_id;
 
     // Special method to get an object containing diurnal averages
-    const diurnal = monitor.getDiurnalAverage(id);
+    const diurnal = monitor.getDiurnalStats(id);
 
 		// Assemble required plot data
 		const plotData = {
@@ -56,7 +56,7 @@
       timezone: monitor.getMetadata(id, 'timezone'),
       title: undefined, // use default title
       // unique to this chart
-      hour_average: diurnal.average,
+      hour_average: diurnal.mean,
       longitude: monitor.getMetadata(id, 'longitude'),
       latitude: monitor.getMetadata(id, 'latitude'),
 		}
@@ -80,7 +80,7 @@
 
 <!-- Note that sizing needs to be included as part of the element style. -->
 <div class="chart-wrapper">
-	<div id="{element_id}" class="chart-container" 
+	<div id="{element_id}" class="chart-container"
        style="width: {width}; height: {height};">
   </div>
 </div>
