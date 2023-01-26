@@ -9,7 +9,7 @@ export let selected_id = writable("");
 export let selected_meta = derived(
   [all_monitors, selected_id],
   ([$all_monitors, $selected_id]) => {
-    let meta = $all_monitors.select($selected_id).meta.object(); // arquero table turned into an object
+    let meta = $all_monitors.getMetaObject($selected_id);
     return meta;
   }
 );
