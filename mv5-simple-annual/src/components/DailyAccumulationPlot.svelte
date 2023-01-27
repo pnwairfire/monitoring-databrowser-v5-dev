@@ -49,7 +49,7 @@
       const daily = monitor.getDailyStats(id);
 
       // https://stackoverflow.com/questions/20477177/creating-an-array-of-cumulative-sum-in-javascript
-      // NOTE:  This works wwhen some values are null
+      // NOTE:  This even works when some values are null as null is interpreted as zero
       // const daily_cumsum = daily.mean.map((sum => value => sum += value)(0));
 
       let daily_cumsum = [];
