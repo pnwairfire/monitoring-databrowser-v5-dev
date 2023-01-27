@@ -46,7 +46,7 @@
 				<DailyAccumulationPlot element_id="r1_daily_accumulation" width="400px"/>
 			</div> -->
 			<div class="plot-row">
-				<CalendarPlot_B  element_id="r2_calendar" width="800px" height="600px"/>
+				<CalendarPlot_B  element_id="r2_calendar" width="1200px" height="400px"/>
 			</div>
 		{/if}
 

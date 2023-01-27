@@ -82,13 +82,14 @@
   let seriesData = [];
   for (let i = 0; i < datetime.length; i++) {
     seriesData[i] = [
+      // datetime[i].getDate(),
       moment.tz(datetime[i], timezone).dayOfYear(),
       moment.tz(datetime[i], timezone).hour(),
       pm25[i]
     ]
-    if ( i % 720 == 0 ) {
-      console.log(seriesData[i])
-    }
+    // if ( i % 720 == 0 ) {
+    //   console.log(seriesData[i])
+    // }
   }
 
 
@@ -102,9 +103,6 @@
 
   let chartConfig = {
 
-// data: {
-//     csv: document.getElementById('csv').innerHTML
-// },
 
 chart: {
     type: 'heatmap'
@@ -135,37 +133,51 @@ xAxis: {
 },
 
 yAxis: {
-    // title: {
-    //   text: null
-    // },
-    // labels: {
-    //   format: '{value}:00'
-    // },
-    // minPadding: 0,
-    // maxPadding: 0,
-    // startOnTick: false,
-    // endOnTick: false,
-    // tickPositions: [0, 6, 12, 18, 24],
-    // tickWidth: 1,
-    // min: 0,
-    // max: 23,
-    // reversed: true
+    title: {
+      text: null
+    },
+    labels: {
+      format: '{value}:00'
+    },
+    minPadding: 0,
+    maxPadding: 0,
+    startOnTick: false,
+    endOnTick: false,
+    tickPositions: [0, 6, 12, 18, 24],
+    tickWidth: 1,
+    min: 0,
+    max: 23,
+    reversed: true
 },
 
 colorAxis: {
-    // stops: [
-    //     [0, '#3060cf'],
-    //     [0.5, '#fffbbc'],
-    //     [0.9, '#c4463a'],
-    //     [1, '#c4463a']
-    // ],
-    // min: 0,
-    // max: 500,
-    // startOnTick: false,
-    // endOnTick: false,
+  // > US_AQI$breaks_PM2.5
+  // [1]  -Inf  12.0  35.5  55.5 150.5 250.5   Inf
+  // > US_AQI$colors_EPA
+  // [1] "#00E400" "#FFFF00" "#FF7E00" "#FF0000" "#8F3F97" "#7E0023"
+  // > US_AQI$colors_subdued
+  // [1] "#2ecc71" "#f1c40f" "#e67e22" "#e74c3c" "#9b59b6" "#8c3a3a"
+  // > US_AQI$colors_deuteranopia
+  // [1] "#8cddf5" "#ffef00" "#f7921f" "#ed1d24" "#a3064b" "#6d0526"
+    stops: [
+        [0, '#00E400'],
+        [12 / 500, "#FFFF00"],
+        [35.5 / 500, "#FF7E00"],
+        [55.5 / 500, "#FF0000"],
+        [150.5 / 500, "#8F3F97"],
+        [250.5 / 500, "#7E0023"],
+        [1, '#7E0023']
+    ],
+
+    min: 0,
+    max: 500,
+    startOnTick: false,
+    endOnTick: false,
     // labels: {
     //     format: '{value}℃'
     // }
+    showInLegend: false,
+    visible: false,
 },
 
 series: [{
@@ -173,11 +185,12 @@ series: [{
     data: seriesData,
     borderWidth: 0,
     nullColor: '#EFEFEF',
-    colsize: 24, //* 36e5, // one day
-    // tooltip: {
-    //     headerFormat: 'Temperature<br/>',
-    //     pointFormat: '{point.x:%e %b, %Y} {point.y}:00: <b>{point.value} ℃</b>'
-    // },
+    colsize: 24,           // when seriesData[x,,] is day-of-year
+    // colsize: 24 * 36e5, // when seriesData[x,,] is a Date (milliseconds since epoch?)
+    tooltip: {
+        headerFormat: '',
+        pointFormat: '{point.x:%e %b, %Y} {point.y}:00: <br><b>{point.value} ug/m3</b>'
+    },
     turboThreshold: Number.MAX_VALUE // #3404, remove after 4.0.5 release
 }]
 
