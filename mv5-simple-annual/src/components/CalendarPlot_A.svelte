@@ -25,6 +25,9 @@
   } from "air-monitor-plots";
   import { circle } from 'leaflet';
 
+  // NOTE:  heatmap examples
+  // - https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/demo/heatmap-canvas/
+  // - https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/demo/heatmap/
 
 
   // Good examples to learn from:
@@ -75,44 +78,44 @@
   let chartConfig = {
 
     chart: {
-        type: 'heatmap',
-        plotBorderWidth: 0,
-        height: 440,
-        width: 800,
-        marginTop: 100,
-        events: {
-            load: function() {
-                var series = this.series,
-                    bbox;
+      type: 'heatmap',
+      plotBorderWidth: 0,
+      height: 440,
+      width: 800,
+      marginTop: 100,
+      events: {
+        load: function() {
+          var series = this.series,
+            bbox;
 
-                series.forEach(function(s) {
-                    bbox = s.group.getBBox(true);
-                    this.renderer.text(
-                            s.name,
-                            bbox.x + this.plotLeft + bbox.width / 2,
-                            bbox.y + this.plotTop - 10
-                        )
-                        .attr({
-                            align: 'center'
-                        })
-                        .css({
-                            color: 'black',
-                            fontSize: '12px'
-                        })
-                        .add();
-                }, this);
-            }
+          series.forEach(function(s) {
+            bbox = s.group.getBBox(true);
+            this.renderer.text(
+                s.name,
+                bbox.x + this.plotLeft + bbox.width / 2,
+                bbox.y + this.plotTop - 10
+              )
+              .attr({
+                align: 'center'
+              })
+              .css({
+                color: 'black',
+                fontSize: '12px'
+              })
+              .add();
+          }, this);
         }
+      }
     },
 
     title: {
-        text: 'Calendar 2019',
-        align: 'left'
+      text: 'Calendar 2021',
+      align: 'left'
     },
-    subtitle: {
-        text: 'year compact view',
-        align: 'left'
-    },
+    // subtitle: {
+    //   text: 'year compact view',
+    //   align: 'left'
+    // },
 
     xAxis: {
         type: 'category',
@@ -123,18 +126,18 @@
         tickWidth: 0,
         opposite: true,
         labels: {
-            // don't show the axis label : it's the category id
-            // see plotOptions -> dataLabels to show the week number
-            enabled: false
+          // don't show the axis label : it's the category id
+          // see plotOptions -> dataLabels to show the week number
+          enabled: false
         }
     },
 
     yAxis: {
         type: 'category',
         categories: [
-            'Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.', 'Sun.',
-            ' ', ' ', ' ',
-            'Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.', 'Sun.',
+          'Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.', 'Sun.',
+          ' ', ' ', ' ',
+          'Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.', 'Sun.',
         ],
         title: null,
         reversed: true,
@@ -143,9 +146,9 @@
         minorGridLineWidth: 0,
         minTickInterval: 1,
         labels: {
-            style: {
-                fontSize: '9px'
-            }
+          style: {
+            fontSize: '9px'
+          }
         },
 
         // insert the month as plotline label
@@ -153,78 +156,78 @@
     },
 
     colorAxis: {
-        min: 0,
-        max: 10,
-        tickInterval: 1,
-        tickmarkPlacement: 'on',
-        // Farben
-        stops: [
-            [0, '#ffffff'], // weiss    : leer
-            [0.1, '#eeeeee'], // grau     : Wochentag
-            [0.2, '#aac5e6'], // hellblau : Samstag
-            [0.3, '#1076b0'], //	blau 	   : Sonntag
-            [0.4, '#ff7d1e'], //	orange   : Feiertag
-        ],
-        labels: {
-            enabled: true
-        }
+      min: 0,
+      max: 10,
+      tickInterval: 1,
+      tickmarkPlacement: 'on',
+      // Farben
+      stops: [
+        [0, '#ffffff'],   // weiss    : leer
+        [0.1, '#eeeeee'], // grau     : Wochentag
+        [0.2, '#aac5e6'], // hellblau : Samstag
+        [0.3, '#1076b0'], //	blau 	   : Sonntag
+        [0.4, '#ff7d1e'], //	orange   : Feiertag
+      ],
+      labels: {
+        enabled: true
+      }
     },
 
     legend: {
-        enabled: false,
-        verticalAlign: 'bottom',
-        layout: 'horizontal',
-        margin: 30,
-        y: 40
+      enabled: false,
+      verticalAlign: 'bottom',
+      layout: 'horizontal',
+      margin: 30,
+      y: 40
     },
 
     credits: {
-        enabled: false
+      enabled: false
     },
 
-    tooltip: {
-        useHTML: true,
-        formatter: function() {
-            if (this.point.value == 0) return false;
-            var s = Highcharts.dateFormat('%a %e. %B %Y', this.point.date);
-            if (this.point.publicday != undefined) {
-                s += '<br><div class="publicday">' + this.point.publicday + '</div>';
+    // tooltip: {
+    //   useHTML: true,
+    //   formatter: function() {
+    //     if (this.point.value == 0) return false;
+    //     var s = Highcharts.dateFormat('%a %e. %B %Y', this.point.date);
+    //     if (this.point.publicday != undefined) {
+    //       s += '<br><div class="publicday">' + this.point.publicday + '</div>';
 
-                if (this.point.fedstate != undefined)
-                    s += '<div class="fedstate">' + this.point.fedstate + '</div>';
-                else
-                    s += '<div class="fedstate">Bundesweit</div>';
-            }
-            return s;
-        }
-    },
+    //       if (this.point.fedstate != undefined)
+    //         s += '<div class="fedstate">' + this.point.fedstate + '</div>';
+    //       else
+    //         s += '<div class="fedstate">Bundesweit</div>';
+    //     }
+    //     return s;
+    //   }
+    // },
 
     plotOptions: {
-        series: {
-            // show the week number under the calendar blocks
-            // use the datas of last block row and move it down
-            dataLabels: {
-                enabled: true,
-                y: 20,
-                crop: false,
-                overflow: 'allow',
-                //zIndex: 20,
-                formatter: function() {
-                    if (this.point.y == 6 || this.point.y == 16)
-                        return this.point.week;
-                    else
-                        return null;
-                },
-                style: {
-                    fontSize: '9px',
-                    color: '#999999',
-                    fontWeight: 'normal',
-                    textOutline: 'none'
-                }
-            },
-            borderColor: '#ffffff',
-            borderWidth: 3
-        }
+      series: {
+        // show the week number under the calendar blocks
+        // use the datas of last block row and move it down
+        dataLabels: {
+          enabled: true,
+          y: 20,
+          crop: false,
+          overflow: 'allow',
+          //zIndex: 20,
+          formatter: function() {
+            if (this.point.y == 6 || this.point.y == 16)
+              return this.point.week;
+            else
+              return null;
+          },
+          style: {
+            fontSize: '9px',
+            color: '#999999',
+            fontWeight: 'normal',
+            textOutline: 'none'
+          }
+        },
+        borderColor: '#ffffff',
+        borderWidth: 3
+      }
     },
 
     series: [{
