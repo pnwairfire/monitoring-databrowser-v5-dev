@@ -1,10 +1,14 @@
 <script>
+	// Exports
+  export let width = '400px';
+  export let height = '400px';
+
   // Imports
   // Svelte methods
 	import { onMount, onDestroy } from 'svelte';
   // Svelte stores
   import { all_monitors } from '../stores/monitor-data-store.js';
-  import { selected_id } from "../stores/gui-store.js";
+  import { selected_id } from '../stores/gui-store.js';
   // Leaflet (NOTE:  Don't put {} around the 'L'!)
   import L from "leaflet";
   // Plotting helper functions
@@ -16,7 +20,6 @@
 
     // Get a copy of the reactive data and id
     const monitor = $all_monitors;
-    const id = $selected_id;
 
     // Create the map
     map = L.map('map').setView([40, -120], 8);
@@ -68,17 +71,17 @@
         layer.bindPopup(feature.properties.locationName + '<br>' + valueText);
 
         layer.on('mouseover', function (e) {
-          // $selected_id = feature.properties.deviceDeploymentID;
-          this.openPopup();
+          $selected_id = feature.properties.deviceDeploymentID;
+          // this.openPopup();
         });
 
         layer.on('mouseout', function (e) {
-          this.closePopup();
+          // this.closePopup();
         });
 
-        layer.on('click', function (e) {
-          $selected_id = feature.properties.deviceDeploymentID;
-        });
+        // layer.on('click', function (e) {
+        //   selected_id.set(feature.properties.deviceDeploymentID);
+        // });
       }
     });
     return this_layer;
@@ -94,15 +97,11 @@
   />
 </svelte:head>
 
-<div class="map-wrapper">
-  <div id="map"></div>
+<!-- Note that sizing needs to be included as part of the element style. -->
+<div id="map"
+      style="width: {width}; height: {height};">
 </div>
 
 <style>
-	.map-wrapper {
-		display: inline-block;
-	}	#map {
-		width: 400px;
-    height: 350px;
-	}
+
 </style>

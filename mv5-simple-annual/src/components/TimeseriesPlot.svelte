@@ -10,7 +10,7 @@
   import { afterUpdate } from 'svelte';
   // Svelte stores
   import { all_monitors } from '../stores/monitor-data-store.js';
-  import { selected_id } from "../stores/gui-store.js";
+  import { selected_id } from '../stores/gui-store.js';
   // Highcharts for plotting
   import Highcharts from 'highcharts';
   // Plot Configuration
@@ -40,27 +40,29 @@
     const monitor = $all_monitors;
     const id = $selected_id;
 
-    console.log("selected id: " + id);
+    if ( id !== "" ) {
 
-		// Assemble required plot data
-		const plotData = {
-			datetime: monitor.getDatetime(),
-			pm25: monitor.getPM25(id),
-			nowcast: monitor.getNowcast(id),
-			locationName: monitor.getMetadata(id, 'locationName'),
-			timezone: monitor.getMetadata(id, 'timezone'),
-			title: undefined // use default title
-		}
+      // Assemble required plot data
+      const plotData = {
+        datetime: monitor.getDatetime(),
+        pm25: monitor.getPM25(id),
+        nowcast: monitor.getNowcast(id),
+        locationName: monitor.getMetadata(id, 'locationName'),
+        timezone: monitor.getMetadata(id, 'timezone'),
+        title: undefined // use default title
+      }
 
-		// Create the chartConfig
-    if ( size === 'small' ) {
-      chartConfig = small_timeseriesPlotConfig(plotData);
-      myChart = Highcharts.chart(context, chartConfig);
-      pm25_addAQIStackedBar(myChart, 4);
-    } else {
-      chartConfig = timeseriesPlotConfig(plotData);
-      myChart = Highcharts.chart(context, chartConfig);
-      pm25_addAQIStackedBar(myChart, 6);
+      // Create the chartConfig
+      if ( size === 'small' ) {
+        chartConfig = small_timeseriesPlotConfig(plotData);
+        myChart = Highcharts.chart(context, chartConfig);
+        pm25_addAQIStackedBar(myChart, 4);
+      } else {
+        chartConfig = timeseriesPlotConfig(plotData);
+        myChart = Highcharts.chart(context, chartConfig);
+        pm25_addAQIStackedBar(myChart, 6);
+      }
+
     }
 
   }
@@ -70,20 +72,11 @@
 </script>
 
 <!-- Note that sizing needs to be included as part of the element style. -->
-<div class="chart-wrapper">
-	<div id="{element_id}" class="chart-container"
-	     style="width: {width}; height: {height};">
-  </div>
+<div id="{element_id}" class="chart-container"
+      style="width: {width}; height: {height};">
 </div>
 
 <style>
-  /*
-	.chart-wrapper {
-		display: inline-block;
-	}
-  .chart-container {
-		display: inline-block;
-		border: 2px solid black;
-	}
-  */
+
 </style>
+

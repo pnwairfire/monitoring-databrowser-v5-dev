@@ -1,6 +1,6 @@
 <script>
 	// Exports
-	export let element_id = 'default-daily-barplot';
+	export let element_id = 'default-diurnal-plot';
   export let width = '400px';
   export let height = '300px';
   export let size = 'big';
@@ -10,7 +10,7 @@
   import { afterUpdate } from 'svelte';
   // Svelte stores
   import { all_monitors } from '../stores/monitor-data-store.js';
-  import { selected_id } from "../stores/gui-store.js";
+  import { selected_id } from '../stores/gui-store.js';
   // Highcharts for plotting
   import Highcharts from 'highcharts';
   // moment for timezone-aware date calculations
@@ -44,32 +44,36 @@
     const monitor = $all_monitors;
     const id = $selected_id;
 
-    // Special method to get an object containing diurnal averages
-    const diurnal = monitor.getDiurnalStats(id);
+    if ( id !== "" ) {
 
-		// Assemble required plot data
-		const plotData = {
-      datetime: monitor.getDatetime(),
-      pm25: monitor.getPM25(id),
-      nowcast: monitor.getNowcast(id),
-      locationName: monitor.getMetadata(id, 'locationName'),
-      timezone: monitor.getMetadata(id, 'timezone'),
-      title: undefined, // use default title
-      // unique to this chart
-      hour_average: diurnal.mean,
-      longitude: monitor.getMetadata(id, 'longitude'),
-      latitude: monitor.getMetadata(id, 'latitude'),
-		}
+      // Special method to get an object containing diurnal averages
+      const diurnal = monitor.getDiurnalStats(id);
 
-		// Create the chartConfig
-    if ( size === 'small' ) {
-      chartConfig = small_diurnalPlotConfig(plotData);
-      myChart = Highcharts.chart(context, chartConfig);
-      pm25_addAQIStackedBar(myChart, 4);
-    } else {
-      chartConfig = diurnalPlotConfig(plotData);
-      myChart = Highcharts.chart(context, chartConfig);
-      pm25_addAQIStackedBar(myChart, 6);
+      // Assemble required plot data
+      const plotData = {
+        datetime: monitor.getDatetime(),
+        pm25: monitor.getPM25(id),
+        nowcast: monitor.getNowcast(id),
+        locationName: monitor.getMetadata(id, 'locationName'),
+        timezone: monitor.getMetadata(id, 'timezone'),
+        title: undefined, // use default title
+        // unique to this chart
+        hour_average: diurnal.mean,
+        longitude: monitor.getMetadata(id, 'longitude'),
+        latitude: monitor.getMetadata(id, 'latitude'),
+      }
+
+      // Create the chartConfig
+      if ( size === 'small' ) {
+        chartConfig = small_diurnalPlotConfig(plotData);
+        myChart = Highcharts.chart(context, chartConfig);
+        pm25_addAQIStackedBar(myChart, 4);
+      } else {
+        chartConfig = diurnalPlotConfig(plotData);
+        myChart = Highcharts.chart(context, chartConfig);
+        pm25_addAQIStackedBar(myChart, 6);
+      }
+
     }
 
   }
@@ -79,18 +83,10 @@
 </script>
 
 <!-- Note that sizing needs to be included as part of the element style. -->
-<div class="chart-wrapper">
-	<div id="{element_id}" class="chart-container"
-       style="width: {width}; height: {height};">
-  </div>
+<div id="{element_id}" class="chart-container"
+      style="width: {width}; height: {height};">
 </div>
 
 <style>
-	.chart-wrapper {
-		display: inline-block;
-	}
-  .chart-container {
-		display: inline-block;
-    border: 2px solid black;
-  }
+
 </style>
