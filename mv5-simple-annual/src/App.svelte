@@ -6,6 +6,7 @@
   // import SelectRandomButton from "./components/SelectRandomButton.svelte";
   // import PlotTypeButton from "./components/PlotTypeButton.svelte";
 	import AlertBox from "./components/AlertBox.svelte";
+	import CalendarPlot_A from "./components/CalendarPlot_A.svelte";
 	import CalendarPlot_B from "./components/CalendarPlot_B.svelte";
 	import DailyAccumulationPlot from "./components/DailyAccumulationPlot.svelte";
 	import DailyBarplot from "./components/DailyBarplot.svelte";
@@ -46,7 +47,7 @@
 				<DailyAccumulationPlot element_id="r1_daily_accumulation" width="400px"/>
 			</div> -->
 			<div class="plot-row">
-				<CalendarPlot_B  element_id="r2_calendar" width="1200px" height="400px"/>
+				<CalendarPlot_A  element_id="r2_calendar" width="1200px" height="500px"/>
 			</div>
 		{/if}
 

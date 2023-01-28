@@ -37,10 +37,6 @@
   // - https://jsfiddle.net/gh/get/library/pure/highcharts/highcharts/tree/master/samples/highcharts/demo/heatmap/
 
 
-  // Good examples to learn from:
-  //   https://www.youtube.com/watch?v=s7rk2b1ioVE
-  //   https://svelte.dev/repl/d283589caa554badb16644ad40682802?version=3.38.2
-
   // We need these variables to live on after an individual chart is destroyed
   let chartConfig;
   let context;
@@ -87,9 +83,6 @@
       moment.tz(datetime[i], timezone).hour(),
       pm25[i]
     ]
-    // if ( i % 720 == 0 ) {
-    //   console.log(seriesData[i])
-    // }
   }
 
 
