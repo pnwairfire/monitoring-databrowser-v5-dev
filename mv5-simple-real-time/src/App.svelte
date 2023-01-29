@@ -5,12 +5,10 @@
   // Svelte Components
   // import PlotTypeButton from "./components/PlotTypeButton.svelte";
 	import AlertBox from "./components/AlertBox.svelte";
+	import TimeseriesPlot from "./components/TimeseriesPlot.svelte";
 	import DailyBarplot from "./components/DailyBarplot.svelte";
-	import DailyRangeBarplot from "./components/DailyRangeBarplot.svelte";
-	// import DiurnalPlot from "./components/DiurnalPlot.svelte";
+	import DiurnalPlot from "./components/DiurnalPlot.svelte";
   import LeafletMap from "./components/LeafletMap.svelte";
-  import MonitorInfoBox from "./components/MonitorInfoBox.svelte";
-	// import TimeseriesPlot from "./components/TimeseriesPlot.svelte";
 </script>
 
 <main>
@@ -19,15 +17,14 @@
 		<b>This working prototype is temporary -- for evaluation purposes only.</b>
 	</AlertBox>
 
-	<h1>Mv5 Extended (45 days)</h1>
+	<h1>Mv5 Real-Time</h1>
 
 	{#await all_monitors.load()}
 		<p>Loading monitoring data...</p>
 	{:then}
 
-	<p>
-			<!-- Showing {$all_monitors.count()} monitoring locations. -->
-			Loaded 45 days of hourly data for {$all_monitors.count()} monitors in {$airnowLoadTime} seconds.
+		<p>
+			Showing {$all_monitors.count()} monitoring locations.
 			&nbsp;&nbsp;
 			Hover over a location to generate plots.
 		</p>
@@ -36,12 +33,11 @@
 			<LeafletMap width="1200px" height="400px"/>
 		</div>
 
-		{#if $selected_id !== "" }
+		{#if selected_id !== "" }
 			<div class="plot-row">
-				<MonitorInfoBox />
-				<DailyRangeBarplot element_id="r1_daily_range" width="400px"/>
+				<TimeseriesPlot element_id="r1_timeseries" width="400px"/>
 				<DailyBarplot element_id="r1_daily" width="400px"/>
-				<!-- <DiurnalPlot element_id="r1_diurnal" width="400px"/> -->
+				<DiurnalPlot element_id="r1_diurnal" width="400px"/>
 			</div>
 		{/if}
 

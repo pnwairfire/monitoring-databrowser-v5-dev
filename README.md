@@ -1,30 +1,70 @@
-# Monitoring v5
+# monitoring-databrowser-v5-dev
+
+_**This repository is for testing and experimenting.**_
 
 This directory contains one (or more) Svelte apps that together make up the
-monitoring v5 website. These are each built using Svelte and Svelte-kit. For
+monitoring v5 website. These are each built using Svelte and rollup. For
 more information about Svelte, see https://svelte.dev.
 
-## monitoring-v5-simple
+Reading at https://svelte.dev/docs#getting-started we see:
 
-This first app only displays one plot at a time.
+> If you don't need a full-fledged app framework and instead want to build a
+> simple frontend-only site/app, you can also use Svelte (without Kit) with Vite
+> by running `npm init vite` and selecting the svelte option. With this,
+> `npm run build` will generate HTML, JS and CSS files inside the dist directory.
 
-Initial setup with:
+We will be building frontend-only applications and so will use Svelte (without Kit).
+
+## Generic setup
+
+These instructions are for setting up a new Svelte project from scratch.
+
+### Initial setup
+
+At the command line:
 
 ```
-npm create svelte@latest monitoring-v5-simple
+npm init vite
+# choose framework: Svelte
+# choose variant: JavaScript
 cd monitoring-v5-simple
 npm install
-```
-
-Then, from Visual Studio, you can
-
-```
 npm run dev
 ```
 
+This will create a default Svelte app visible at:
+
 And view the page at http://localhost:5173/
 
-Next up we need to install the package dependencies with:
+### Copy in code
+
+Ctrl-C to stop serving the Svelte app. Copy in various files from the relevant development directory. These will include at least:
+
+```
+./src/App.svelte
+./src/components/
+./src/stores/
+```
+
+### Remove/modify example files/code
+
+Remove unneeded files that came with the example app:
+
+```
+rm -rf ./src/assets
+rm -rf ./src/lib
+```
+
+Modify `./index.html` by removing this line:
+
+```
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+```
+
+### Install required packages
+
+For monitoring v5 apps, the following packages need to be installed. At the
+command line:
 
 ```
 # npm packages
@@ -37,93 +77,36 @@ npm install github:MazamaScience/air-monitor-algorithms
 npm install github:pnwairfire/air-monitor-plots
 ```
 
-## Svelte + Charting Examples
+Now `npm run dev` to see the monitoring Svelte app.
 
-- Simple Highcharts: https://svelte.dev/repl/d283589caa554badb16644ad40682802?version=3.38.2
-- Chart Component: https://www.youtube.com/watch?v=s7rk2b1ioVE
-- Using Actions: https://www.youtube.com/watch?v=HzmaqcsDiP0
+### Build the static site
 
-## Svelte + Leaflet
-
-- Simple Component: https://dev.to/khromov/using-leaflet-with-sveltekit-3jn1
-
-Things I've tried.
-
-https://www.npmjs.com/package/@sveltehacks/leaflet?activeTab=explore
-
-This looks like a well built modern Svelte component but treats markers as sub-components using Svelte _context_. Not what I'm looking for.
-
-https://dev.to/khromov/using-leaflet-with-sveltekit-3jn1
-
-Just implements leaflet as a full page Svelte app. Not enough details to figure
-out how to make a component.
-
-https://www.npmjs.com/package/svelte-map-leaflet?activeTab=readme
-
-Haven't tried it but it also treats markers as individual components.
-
-### leaflet-svelte
-
-https://www.npmjs.com/package/@anoram/leaflet-svelte
-
-This looks promising with 110 weekly downloads. Last publish 2 years ago.
-
-### svelte-leaflet
-
-https://www.npmjs.com/package/svelte-leafletjs
-
-This looks perhaps more promising with 499 weekly downloads. Last publish 2 months ago.
-
-## Rendering static pages
-
-Following example at:
-
-https://dev.to/robertobutti/how-to-start-building-your-static-website-with-svelte-and-tailwindcss-hbk
+Compile/build the static site with:
 
 ```
-npm i -D @sveltejs/adapter-static@latest
-npm i svelte-preprocess
-npm i postcss-load-config
+npm run build
 ```
 
-Update `svelte.config.js` as described in the web page above.
-
-Also see:
-
-https://kit.svelte.dev/docs/adapter-static
-
-\*\*Lots of problems whose solutions involve more and more software bundles.(())
-
-_Should I switch to using Svelte w/o SvelteKit?_
-
-## Svelte-only app
-
-https://akashmittal.com/install-svelte-create-project/
-
-Need to add this to ingest arquero .json files.
+Files will be found in the `dist/` directory:
 
 ```
-npm i -D @rollup/plugin-json
+dist
+├── assets
+│   ├── index-ad776a4e.js
+│   └── index-f9ecc00f.css
+├── index.html
+└── vite.svg
 ```
 
-Now you need to edit `rollup.config.js` to look like this:
+### Deploy the static site
+
+Before copying `index.html` and the `assets/` subdirectory to a web server, you
+will need to modify the references in `index.html` so they are relative rather
+than absolute. Just begin the paths with `./` rather than `/`:
 
 ```
-import json from "@rollup/plugin-json";
-...
-export default {
-    plugins: [
-        commonjs(),
-        json(),      // <---- put after commonjs
-    ]
-}
-...
+    <script type="module" crossorigin src="./assets/index-ad776a4e.js"></script>
+    <link rel="stylesheet" href="./assets/index-f9ecc00f.css">
 ```
 
-Now `run build` should work to generate a complete site in the `public/`
-directory.
-
-Before deploying, edit `public/index.html` to use relative paths for the .css
-and .js files.
-
-Then just deploy as a static site!
+Now just copy these files to your favorite web server!
