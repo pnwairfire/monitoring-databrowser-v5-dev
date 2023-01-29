@@ -16,7 +16,7 @@
 <main>
 
 	<AlertBox>
-		<b>This working prototype is temporary -- for evaluation purposes only.</b>
+		<b>This proof-of-concept example is temporary -- for evaluation purposes only.</b>
 	</AlertBox>
 
 	<h1>Mv5 Extended (45 days)</h1>
