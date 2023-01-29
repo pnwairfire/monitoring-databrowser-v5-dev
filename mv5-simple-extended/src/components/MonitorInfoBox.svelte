@@ -11,7 +11,7 @@
 <div class="monitor-info-box"
      style="width: {width}; height: {height};">
 
-  <label>{$all_monitors.getMetadata($selected_id, 'locationName')}</label>
+  <span class="location-name">{$all_monitors.getMetadata($selected_id, 'locationName')}</span>
   <p>
     <span>AQSID: {$all_monitors.getMetadata($selected_id, 'AQSID')}</span><br>
     <span>Source: AirNow</span><br>
@@ -33,7 +33,7 @@
     padding-left: 1rem;
     padding-top: 1rem
 	}
-  label {
+  .location-name {
     font-size: x-large;
     font-weight: bold;
   }
