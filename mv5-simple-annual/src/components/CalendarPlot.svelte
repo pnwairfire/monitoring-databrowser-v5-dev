@@ -148,15 +148,14 @@
     }
 
   }
-  console.log(seriesData[11])
 
   let chartConfig = {
 
     chart: {
       type: 'heatmap',
       plotBorderWidth: 0,
-      height: 440,
-      width: 800,
+      height:350, // coming in as a parameter
+      width: 700, // coming in as a parameter
       marginTop: 100,
       events: {
         load: function() {
@@ -184,7 +183,7 @@
     },
 
     title: {
-      text: 'Calendar 2021',
+      text: '2021',
       align: 'left'
     },
     // subtitle: {

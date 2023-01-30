@@ -6,8 +6,8 @@
   // import SelectRandomButton from "./components/SelectRandomButton.svelte";
   // import PlotTypeButton from "./components/PlotTypeButton.svelte";
 	import AlertBox from "./components/AlertBox.svelte";
-	import CalendarPlot_A from "./components/CalendarPlot_A.svelte";
-	import CalendarPlot_B from "./components/CalendarPlot_B.svelte";
+	import CalendarPlot from "./components/CalendarPlot.svelte";
+	import AnnualHeatmap from "./components/AnnualHeatmap.svelte";
 	import DailyAccumulationPlot from "./components/DailyAccumulationPlot.svelte";
 	import DailyBarplot from "./components/DailyBarplot.svelte";
 	import DailyRangeBarplot from "./components/DailyRangeBarplot.svelte";
@@ -36,20 +36,29 @@
 			Hover over a location to generate plots.
 		</p>
 
-		<div>
-			<LeafletMap width="1200px" height="400px"/>
+		<div class="plot-row">
+			<LeafletMap width="500px" height="350px"/>
+
+			{#if $selected_id !== "" }
+
+				<div class="plot-row">
+					<CalendarPlot  element_id="r2_calendar" width="700px" height="350px"/>
+				</div>
+			{/if}
+
 		</div>
 
 		{#if $selected_id !== "" }
-			<!-- <div class="plot-row">
+			<div class="plot-row">
 				<MonitorInfoBox width="380px"/>
 				<DailyRangeBarplot element_id="r1_daily_range" width="400px"/>
 				<DailyAccumulationPlot element_id="r1_daily_accumulation" width="400px"/>
-			</div> -->
+			</div>
 			<div class="plot-row">
-				<CalendarPlot_A  element_id="r2_calendar" width="1200px" height="500px"/>
+				<AnnualHeatmap element_id="r2_annual_heatmap" width="1200px"/>
 			</div>
 		{/if}
+
 
 	{:catch}
 		<p style="color: red">An error occurred</p>

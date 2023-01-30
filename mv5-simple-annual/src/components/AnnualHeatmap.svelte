@@ -1,6 +1,6 @@
 <script>
 	// Exports
-	export let element_id = 'default-calendar-plot';
+	export let element_id = 'default-heatmap-plot';
   export let width = '400px';
   export let height = '300px';
   export let size = 'big';
