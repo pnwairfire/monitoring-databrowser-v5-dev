@@ -25,7 +25,7 @@ export const airnow = asyncReadable(
   async () => {
     const monitor = new Monitor();
     let start = Date.now();
-    await monitor.loadDaily("airnow");
+    await monitor.loadLatest("airnow");
     let end = Date.now();
     let elapsed = (end - start) / 1000;
     let rounded = Math.round(10 * elapsed) / 10;
