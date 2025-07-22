@@ -1,7 +1,8 @@
 // The air-monitor package encapsulates much of the functionality found in the
 // AirMonitor R package.
 
-// npm install github:MazamaScience/air-monitor
+import { DateTime } from 'luxon';
+
 import Monitor from "air-monitor";
 
 // NOTE:  The @square/svelte-store replacement for svelte-store is
@@ -49,7 +50,7 @@ export const clarity = asyncReadable(
   new Monitor(),
   async () => {
     const monitor = new Monitor();
-    let start = Date.now();
+    let start = DateTime.now();
     await monitor.loadCustom(
       "clarity_PM2.5_latest",
       "https://airfire-data-exports.s3.us-west-2.amazonaws.com/sensors/v3/PM2.5/latest/data"
@@ -57,8 +58,8 @@ export const clarity = asyncReadable(
     // Reduce to the last 168 hours to match PurpleAir data
     monitor.data = monitor.data.slice(-168);
     clarityCount.set(monitor.count());
-    let end = Date.now();
-    let elapsed = (end - start) / 1000;
+    let end = DateTime.now();
+    let elapsed = end.diff(start, 'seconds').seconds;
     let rounded = Math.round(10 * elapsed) / 10;
     clarityLoadTime.set(rounded);
     return monitor;
