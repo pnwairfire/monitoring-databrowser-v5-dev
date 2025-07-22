@@ -14,7 +14,12 @@
     "vite": "^5.4.1"
   },
   "dependencies": {
+    "@square/svelte-store": "^1.0.18",
+    "air-monitor": "^1.2.3",
     "air-monitor-algorithms": "^1.2.6",
-    "luxon": "^3.7.1"
+    "geobuf": "^3.0.2",
+    "luxon": "^3.7.1",
+    "papaparse": "^5.5.3",
+    "pbf": "^4.0.1"
   }
 }
