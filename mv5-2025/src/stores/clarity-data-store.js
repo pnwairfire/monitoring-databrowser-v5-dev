@@ -1,9 +1,10 @@
-// The air-monitor package encapsulates much of the functionality found in the
-// AirMonitor R package.
 
 import { DateTime } from 'luxon';
-
+import { asyncReadable, derived, writable } from "@square/svelte-store";
 import Monitor from "air-monitor";
+
+import { error_message, clarityCount } from "./gui-store.js";
+import { loadGeojson } from "../js/utils-loaders.js";
 
 // NOTE:  The @square/svelte-store replacement for svelte-store is
 // NOTE:  Incredibly helpful for us. The problem it solves is explained here:
@@ -15,33 +16,15 @@ import Monitor from "air-monitor";
 // NOTE:  fetching data and create a derived object that will always stay
 // NOTE:  up-to-date as data get periodically updated.
 
-// npm install @square/svelte-store --save
-import { asyncReadable, derived, writable } from "@square/svelte-store";
-
-import { error_message, clarityCount } from "./gui-store.js";
-
 export const clarityLoadTime = writable(1000);
+
+// GeoJSON files with sensor locations and metadata
+const CLARITY_LATEST_GEOJSON = "https://airfire-data-exports.s3.us-west-2.amazonaws.com/sensors/v3/PM2.5/latest/geojson/mv4_clarity_PM2.5_latest.geojson";
 
 // ----- geojson ---------------------------------------------------------------
 
 // Reloadable AirNow geojson data
-export const clarity_geojson = asyncReadable(
-  {},
-  async () => {
-    const response = await fetch(
-      "https://airfire-data-exports.s3.us-west-2.amazonaws.com/sensors/v3/PM2.5/latest/geojson/mv4_clarity_PM2.5_latest.geojson"
-    );
-    if (response.ok) {
-      const userObject = await response.json();
-      console.log("loaded clarity geojson");
-      return userObject;
-    } else {
-      error_message.set("Failed to load clarity geojson");
-      throw new Error(response.message);
-    }
-  },
-  { reloadable: true }
-);
+export const clarity_geojson = loadGeojson(CLARITY_LATEST_GEOJSON, "clarity");
 
 // ----- time series -----------------------------------------------------------
 
@@ -51,10 +34,17 @@ export const clarity = asyncReadable(
   async () => {
     const monitor = new Monitor();
     let start = DateTime.now();
-    await monitor.loadCustom(
-      "clarity_PM2.5_latest",
-      "https://airfire-data-exports.s3.us-west-2.amazonaws.com/sensors/v3/PM2.5/latest/data"
-    );
+    try {
+      await monitor.loadCustom(
+        "clarity_PM2.5_latest",
+        "https://airfire-data-exports.s3.us-west-2.amazonaws.com/sensors/v3/PM2.5/latest/data"
+      );
+    } catch (err) {
+      error_message.set("Failed to load Clarity sensor data");
+      const err_msg = `loadCustom() failed: ${err.message}`;
+      console.error(err_msg);
+      throw new Error(err_msg);
+    }
     // Reduce to the last 168 hours to match PurpleAir data
     monitor.data = monitor.data.slice(-168);
     clarityCount.set(monitor.count());
@@ -62,6 +52,7 @@ export const clarity = asyncReadable(
     let elapsed = end.diff(start, 'seconds').seconds;
     let rounded = Math.round(10 * elapsed) / 10;
     clarityLoadTime.set(rounded);
+    console.log(`loaded clarity sensor data in ${rounded} seconds`);
     return monitor;
   },
   { reloadable: true }
