@@ -3,9 +3,15 @@
   export let width = '400px';
   export let height = '400px';
 
-
   // Svelte methods
 	import { onMount, onDestroy } from 'svelte';
+
+  // Leaflet (NOTE:  Don't put {} around the 'L'!)
+  import L from "leaflet";
+  import 'leaflet-svg-shape-markers';
+  import { basemapLayer } from 'esri-leaflet';
+
+  import { DateTime } from 'luxon';
 
   // Stores
   import {
@@ -19,6 +25,8 @@
   //import { clarity, clarity_geojson } from '../stores/clarity-data-store.js';
 
   import { hms_fires_csv, hms_smoke_geojson } from '../stores/hms-data-store.js';
+
+  import { mapLastUpdated } from '../stores/gui-store.js';
 
   import {
     centerLat,
@@ -38,13 +46,6 @@
     current_slide,
   } from '../stores/gui-store.js';
 
-  // Leaflet (NOTE:  Don't put {} around the 'L'!)
-  import L from "leaflet";
-  // Extra shape makers
-  //  - https://npm.io/package/leaflet-svg-shape-markers
-  import 'leaflet-svg-shape-markers';
-  import { basemapLayer } from 'esri-leaflet';
-
   // Plotting helper functions
   import {
     monitorPropertiesToIconOptions,
@@ -57,6 +58,16 @@
   // Utility functions
   // import { getPurpleAirData } from '../js/utils-purpleair.js';
   import { replaceWindowHistory } from '../js/utils.js';
+
+  let layers = {
+    hmsSmoke: null,
+    hmsFires: null,
+    airnow: null,
+    airsis: null,
+    wrcc: null,
+  };
+
+  let refreshInterval;  // store the interval ID so we can clear it later
 
   // TODO:  Status text could say how old the map data is.
 
@@ -78,75 +89,98 @@
 
   async function createMap() {
 
-    // Create the map
+    // Initialize the map
     map = L.map('map').setView([$centerLat, $centerLon], $zoom);
-
-    // Add background tiles
     basemapLayer('Topographic').addTo(map);
 
-    let HMSFiresLayer, HMSSmokeLayer;
-    let PurpleAirLayer, ClarityLayer;
-    let AirNowLayer, AIRSISLayer, WRCCLayer;
+    // ----- Add Layers --------------------------------------------------------
 
-    // Create the smoke polygons layer
-    hms_smoke_geojson.load().then(function(geojsonData) {
-      HMSSmokeLayer = createHMSSmokeLayer(geojsonData);
+    // Create empty Leaflet LayerGroups in this specific order
+    layers.hmsSmoke = L.layerGroup().addTo(map);
+    layers.hmsFires = L.layerGroup().addTo(map);   // below monitors
+    layers.airsis = L.layerGroup().addTo(map);
+    layers.wrcc = L.layerGroup().addTo(map);
+    layers.airnow = L.layerGroup().addTo(map);
+
+    // Subscribe to HMS smoke
+    hms_smoke_geojson.subscribe((geojson) => {
+      layers.hmsSmoke.clearLayers();
+      if (geojson) {
+        const layer = createHMSSmokeLayer(geojson);
+        layers.hmsSmoke.addLayer(layer);
+      }
     });
 
-    // Create the PurpleAir layer
-    // pas.load().then(function(synopticData) {
-    //   let geojsonData = purpleairCreateGeoJSON(synopticData);
-    //   PurpleAirLayer = createPurpleAirLayer(geojsonData);
-    // });
-
-    // Create the Clarity layer
-    // clarity_geojson.load().then(function(geojsonData) {
-    //   ClarityLayer = createClarityLayer(geojsonData);
-    // });
-
-    // Create the AirNow layer
-    airnow_geojson.load().then(function(geojsonData) {
-      AirNowLayer = createMonitorLayer(geojsonData);
+    // Subscribe to HMS fire points
+    hms_fires_csv.subscribe((csvData) => {
+      if (csvData) {
+        const layer = createHMSFiresLayer_csv(csvData);
+        layers.hmsFires.addLayer(layer);
+      }
     });
 
-    // Create the AIRSIS layer
-    airsis_geojson.load().then(function(geojsonData) {
-      AIRSISLayer = createMonitorLayer(geojsonData);
+    // AIRSIS monitors
+    airsis_geojson.subscribe((geojson) => {
+      if (geojson) {
+        const layer =createMonitorLayer(geojson)
+        layers.airsis.addLayer(layer);
+      }
     });
 
-    // Create the WRCC layer
-    wrcc_geojson.load().then(function(geojsonData) {
-      WRCCLayer = createMonitorLayer(geojsonData);
+    // WRCC monitors
+    wrcc_geojson.subscribe((geojson) => {
+      if (geojson) {
+        const layer =createMonitorLayer(geojson)
+        layers.wrcc.addLayer(layer);
+      }
     });
 
-    // Add layers in desired order after each has loaded
-    await hms_smoke_geojson.load();
-    HMSSmokeLayer.addTo(map);
-
-    // Add HMS Fires to the map so it's on the bottom
-    hms_fires_csv.load().then(function(csvData) {
-      let a = 1;
-      console.log(csvData.length)
-      HMSFiresLayer = createHMSFiresLayer_csv(csvData);
+    // AirNow monitors
+    airnow_geojson.subscribe((geojson) => {
+      if (geojson) {
+        const layer =createMonitorLayer(geojson)
+        layers.airnow.addLayer(layer);
+      }
     });
 
-    // await clarity_geojson.load();
-    // ClarityLayer.addTo(map);
+    // Kick off initial load of all data
+    hms_smoke_geojson.reload();
+    hms_fires_csv.reload();
+    airsis_geojson.reload();
+    wrcc_geojson.reload();
+    airnow_geojson.reload();
+    mapLastUpdated.set(DateTime.now());
 
-    // await pas.load();
-    // PurpleAirLayer.addTo(map);
-
-    await airsis_geojson.load();
-    AIRSISLayer.addTo(map);
-
-    await wrcc_geojson.load();
-    WRCCLayer.addTo(map);
-
-    await airnow_geojson.load();
-    AirNowLayer.addTo(map);
-
+    // Make layers toggleable
+    L.control.layers(null, {
+      "HMS Fires": layers.hmsFires,
+      "HMS Smoke": layers.hmsSmoke,
+      "AirNow": layers.airnow,
+      "AIRSIS": layers.airsis,
+      "WRCC": layers.wrcc,
+    }).addTo(map);
 
     replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids); //, $selected_clarity_ids);
+
+    // ----- Add lastUpdated  custom control -----------------------------------
+
+    let lastUpdatedDiv = L.control({ position: 'bottomright' });
+
+    lastUpdatedDiv.onAdd = function () {
+      const div = L.DomUtil.create('div', 'leaflet-control-latest-update');
+      div.innerHTML = 'Last updated: ...';
+      return div;
+    };
+
+    lastUpdatedDiv.addTo(map);
+
+    // Subscribe to update time
+    mapLastUpdated.subscribe((dt) => {
+      if (dt && lastUpdatedDiv.getContainer()) {
+        lastUpdatedDiv.getContainer().innerHTML =
+          'Last updated: ' + dt.toFormat('h:mm a ZZZZ');
+      }
+    });
 
     // ----- Add event listeners to the map ------------------------------------
 
@@ -177,6 +211,23 @@
       //$use_hovered_clarity = false;
     });
 
+    // ----- Refresh and onDestroy ---------------------------------------------
+
+    // Refresh store data every 10 minutes without recreating the map
+    refreshInterval = setInterval(() => {
+      airnow_geojson.reload();
+      airsis_geojson.reload();
+      wrcc_geojson.reload();
+      hms_smoke_geojson.reload();
+      hms_fires_csv.reload();
+    mapLastUpdated.set(DateTime.now());
+    }, 10 * 60 * 200); // 2 minutes
+
+    onDestroy(() => {
+      if (map) map.remove();
+      if (refreshInterval) clearInterval(refreshInterval);
+    });
+
   }
 
 	onMount(createMap);
@@ -184,6 +235,10 @@
 	onDestroy(() => {
 		if (map) map.remove();
 	});
+
+  /* ------------------------------------------------------------------------ */
+  /* -------------------------- End of Map ---------------------------------- */
+  /* ------------------------------------------------------------------------ */
 
   /* ----- Monitor functions ------------------------------------------------ */
 
@@ -495,7 +550,7 @@
 
 <!-- Note that sizing needs to be included as part of the element style. -->
 <div id="map"
-      style="width: {width}; height: {height};">
+  style="width: {width}; height: {height};">
 </div>
 
 <style>

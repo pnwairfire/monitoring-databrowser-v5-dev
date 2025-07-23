@@ -1,4 +1,5 @@
 import { readable, writable } from "svelte/store";
+import { DateTime } from 'luxon';
 
 // Version 5.5.0 = v5 . package update refactor . fist pass
 export const VERSION = readable("5.5.0");
@@ -14,6 +15,7 @@ export let hmsFiresCount = writable(0);
 export let centerLon = writable(-100);
 export let centerLat = writable(40);
 export let zoom = writable(4);
+export const mapLastUpdated = writable(null); // or writable(DateTime.now())
 
 // GUI state for user selections
 export let hovered_monitor_id = writable("");

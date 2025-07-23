@@ -1,8 +1,11 @@
+// Download utility functions
+//
+
 import { asyncReadable } from "@square/svelte-store";
-import { error_message } from "../stores/gui-store.js";
 import Pbf from "pbf";
 import geobuf from "geobuf";
 
+import { error_message } from "../stores/gui-store.js";
 
 /**
  * Create a reloadable asyncReadable store that loads GeoJSON from a remote URL.
