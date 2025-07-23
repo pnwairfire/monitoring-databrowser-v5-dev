@@ -2,9 +2,6 @@
 //
 // NOTE:  These functions do not need access to any reactive variables.
 
-// npm install papaparse
-// // //import Papa from "papaparse";
-
 import { DateTime } from 'luxon';
 import { pm25ToColor } from "air-monitor-plots";
 
@@ -118,23 +115,10 @@ export function clarityPropertiesToIconOptions(properties) {
 export function HMSFiresPropertiesToIconOptions(properties) {
   const fireDot = L.icon({
     iconUrl: "images/fire-dot.png",
-    //shadowUrl: 'leaf-shadow.png',
-
-    iconSize: [6, 6], // size of the icon
-    //shadowSize:   [50, 64], // size of the shadow
-    //iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
-    //shadowAnchor: [4, 62],  // the same for the shadow
-    //popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+    iconSize: [6, 6],
   });
   const options = {
     icon: fireDot,
-    // radius: 2,
-    // shape: "star-5",
-    // fillColor: "goldenrod",
-    // color: "#000",
-    // weight: 1,
-    // opacity: 1,
-    // fillOpacity: 0.8,
   };
   return options;
 }

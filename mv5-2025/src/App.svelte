@@ -19,8 +19,6 @@
   import AlertBox from "./components/AlertBox.svelte";
 	import LeafletMap from "./components/LeafletMap.svelte";
 
-
-
 </script>
 
 <main>
@@ -28,7 +26,7 @@
 	<NavBar>
 		<img class="logo" src="images/forestservicelogo-inverted.svg"
 		     alt="US Forest Service logo">
-		<span class="mv5">Temporary Monitors v{$VERSION}</span>
+		<span class="mv5">Monitoring v{$VERSION}</span>
 	</NavBar>
 
 	<div class="airfire-alerts" style="display: none"></div>
@@ -50,8 +48,6 @@
 		<div >
 			<LeafletMap width="1200px" height="400px"/>
 		</div>
-
-
 
   {:catch}
 		<p style="color: red">An error occurred</p>
