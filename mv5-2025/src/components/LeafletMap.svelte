@@ -22,7 +22,7 @@
 
   // import { pas, patCart } from '../stores/purpleair-data-store.js';
 
-  //import { clarity, clarity_geojson } from '../stores/clarity-data-store.js';
+  import { clarity, clarity_geojson } from '../stores/clarity-data-store.js';
 
   import { hms_fires_csv, hms_smoke_geojson } from '../stores/hms-data-store.js';
 
@@ -65,6 +65,7 @@
   let layers = {
     hmsSmoke: null,
     hmsFires: null,
+    clarity: null,
     airnow: null,
     airsis: null,
     wrcc: null,
@@ -78,10 +79,11 @@
       airnow_geojson.reload();
       airsis_geojson.reload();
       wrcc_geojson.reload();
+      clarity_geojson.reload();
       hms_smoke_geojson.reload();
       hms_fires_csv.reload();
       mapLastUpdated.set(DateTime.now());
-    }, 10 * 60 * 1000); // 10 minutes
+    }, 5 * 60 * 1000); // 5 minutes
   });
 
   onDestroy(() => {
@@ -100,6 +102,7 @@
     // Create empty Leaflet LayerGroups in this specific order
     layers.hmsSmoke = L.layerGroup().addTo(map);
     layers.hmsFires = L.layerGroup().addTo(map);   // below monitors
+    layers.clarity = L.layerGroup().addTo(map);
     layers.airsis = L.layerGroup().addTo(map);
     layers.wrcc = L.layerGroup().addTo(map);
     layers.airnow = L.layerGroup().addTo(map);
@@ -119,6 +122,14 @@
         layers.hmsFires.clearLayers(); // clear existing points
         const layer = createHMSFiresLayer_csv(csvData);
         layers.hmsFires.addLayer(layer);
+      }
+    });
+
+    // Clarity sensors
+    clarity_geojson.subscribe((geojson) => {
+      if (geojson) {
+        const layer =createClarityLayer(geojson)
+        layers.clarity.addLayer(layer);
       }
     });
 
@@ -149,6 +160,7 @@
     // Kick off initial load of all data
     hms_smoke_geojson.reload();
     hms_fires_csv.reload();
+    clarity_geojson.reload();
     airsis_geojson.reload();
     wrcc_geojson.reload();
     airnow_geojson.reload();
@@ -158,12 +170,13 @@
     L.control.layers(null, {
       "HMS Fires": layers.hmsFires,
       "HMS Smoke": layers.hmsSmoke,
+      "Clarity": layers.clarity,
       "AirNow": layers.airnow,
       "AIRSIS": layers.airsis,
       "WRCC": layers.wrcc,
     }).addTo(map);
 
-    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids); //, $selected_clarity_ids);
+    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids); //, $selected_purpleair_ids);
 
     // ----- Add lastUpdated  custom control -----------------------------------
 
@@ -196,22 +209,22 @@
     map.on("moveend", function() {
       $centerLat = map.getCenter().lat;
       $centerLon = map.getCenter().lng;
-      replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids); //, $selected_clarity_ids);
+      replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids); //, $selected_purpleair_ids);
     })
 
     // Update browser URL when zooming
     map.on("zoomend", function() {
       $zoom = map.getZoom();
-      replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids); //, $selected_clarity_ids);
+      replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids); //, $selected_purpleair_ids);
     })
 
     // Ensure "hovered" plot is not shown after leaving the map
     map.on('mouseout', function () {
       $hovered_monitor_id = "";
-      $hovered_purpleair_id = "";
-      //$hovered_clarity_id = "";
-      $use_hovered_purpleair = false;
-      //$use_hovered_clarity = false;
+      // $hovered_purpleair_id = "";
+      $hovered_clarity_id = "";
+      // $use_hovered_purpleair = false;
+      $use_hovered_clarity = false;
     });
 
   }
@@ -253,7 +266,7 @@
       // Icon behavior
       onEachFeature: function (feature, layer) {
         layer.on('mouseover', function (e) {
-          $use_hovered_purpleair = false;
+          // $use_hovered_purpleair = false;
           $use_hovered_clarity = false;
           $hovered_monitor_id = feature.properties.deviceDeploymentID;
         });
@@ -283,7 +296,7 @@
       e.target.setStyle({ weight: 3 });
     }
 
-    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids);
+    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids);
   }
 
   /* ----- Clarity functions ------------------------------------------------ */
@@ -361,43 +374,43 @@
 
   /* ----- PurpleAir functions ---------------------------------------------- */
 
-  function createPurpleAirLayer(geojson) {
-    let this_layer = L.geoJSON(geojson, {
-      // Icon appearance
-      pointToLayer: function (feature, latlng) {
-        // Only show markers if the latency is less than 3 * 24 hours
-        if ( parseInt(feature.properties.latency) < 24 * 3) {
-          let marker = L.shapeMarker(latlng, purpleairPropertiesToIconOptions(feature.properties));
-          // https://stackoverflow.com/questions/34322864/finding-a-specific-layer-in-a-leaflet-layergroup-where-layers-are-polygons
-          marker.id = feature.properties.deviceDeploymentID.toString();
-          // // //marker.setStyle({"zIndexOffset": feature.properties.last_nowcast * 10})
-          if ($selected_purpleair_ids.find(o => o === marker.id)) {
-            marker.setStyle({opacity: 1.0, weight: 2});
-          } else {
-            marker.setStyle({opacity: 0.2, weight: 1});
-          }
-          return(marker);
-        }
-      },
+  // function createPurpleAirLayer(geojson) {
+  //   let this_layer = L.geoJSON(geojson, {
+  //     // Icon appearance
+  //     pointToLayer: function (feature, latlng) {
+  //       // Only show markers if the latency is less than 3 * 24 hours
+  //       if ( parseInt(feature.properties.latency) < 24 * 3) {
+  //         let marker = L.shapeMarker(latlng, purpleairPropertiesToIconOptions(feature.properties));
+  //         // https://stackoverflow.com/questions/34322864/finding-a-specific-layer-in-a-leaflet-layergroup-where-layers-are-polygons
+  //         marker.id = feature.properties.deviceDeploymentID.toString();
+  //         // // //marker.setStyle({"zIndexOffset": feature.properties.last_nowcast * 10})
+  //         if ($selected_purpleair_ids.find(o => o === marker.id)) {
+  //           marker.setStyle({opacity: 1.0, weight: 2});
+  //         } else {
+  //           marker.setStyle({opacity: 0.2, weight: 1});
+  //         }
+  //         return(marker);
+  //       }
+  //     },
 
-      // Icon behavior
-      onEachFeature: function (feature, layer) {
-        layer.on('mouseover', function (e) {
-          $hovered_purpleair_id = feature.properties.deviceDeploymentID;
-          $use_hovered_purpleair = true;
-        });
-        layer.on('mouseout', function (e) {
-          $hovered_purpleair_id = "";
-          $use_hovered_purpleair = false;
-        });
-        layer.on('click', function (e) {
-          // $use_hovered_purpleair = true;
-          purpleairIconClick(e);
-        });
-      }
-    });
-    return this_layer;
-  }
+  //     // Icon behavior
+  //     onEachFeature: function (feature, layer) {
+  //       layer.on('mouseover', function (e) {
+  //         $hovered_purpleair_id = feature.properties.deviceDeploymentID;
+  //         $use_hovered_purpleair = true;
+  //       });
+  //       layer.on('mouseout', function (e) {
+  //         $hovered_purpleair_id = "";
+  //         $use_hovered_purpleair = false;
+  //       });
+  //       layer.on('click', function (e) {
+  //         // $use_hovered_purpleair = true;
+  //         purpleairIconClick(e);
+  //       });
+  //     }
+  //   });
+  //   return this_layer;
+  // }
 
   // // Sensor icon click behavior
   // async function purpleairIconClick(e) {
@@ -504,7 +517,7 @@
         }
       }
     })
-    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids); //, $selected_clarity_ids);
+    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids); //, $selected_purpleair_ids);
   }
 
   // Watcher for map-external sensor deselect events
@@ -521,17 +534,17 @@
   // }
 
   // Watcher for map-external sensor deselect events
-  // $: if ($unselected_clarity_id !== "") {
-  //   map.eachLayer(function(layer) {
-  //     if (layer instanceof L.ShapeMarker) {
-  //       if (layer.id == $unselected_clarity_id) {
-  //         layer.setStyle({opacity: 0.2, weight: 1});
-  //         $unselected_clarity_id = "";
-  //       }
-  //     }
-  //   })
-  //   replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids, $selected_clarity_ids);
-  // }
+  $: if ($unselected_clarity_id !== "") {
+    map.eachLayer(function(layer) {
+      if (layer instanceof L.ShapeMarker) {
+        if (layer.id == $unselected_clarity_id) {
+          layer.setStyle({opacity: 0.2, weight: 1});
+          $unselected_clarity_id = "";
+        }
+      }
+    })
+    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids, $selected_clarity_ids);
+  }
 
 </script>
 

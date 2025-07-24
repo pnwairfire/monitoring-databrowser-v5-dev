@@ -2,7 +2,7 @@
 //
 // NOTE:  These functions do not need access to any reactive variables.
 
-import { DateTime } from 'luxon';
+import { DateTime } from "luxon";
 import { pm25ToColor } from "air-monitor-plots";
 
 /* ----- Monitor functions -------------------------------------------------- */
@@ -45,8 +45,8 @@ export function purpleairCreateGeoJSON(synopticData) {
   for (let i = 0; i < synopticData.length; i++) {
     let site = synopticData[i];
     const now = DateTime.utc();
-    const siteTime = DateTime.fromISO(site.utc_ts, { zone: 'utc' });
-    const site_latency = now.diff(siteTime, 'hours').hours;
+    const siteTime = DateTime.fromISO(site.utc_ts, { zone: "utc" });
+    const site_latency = now.diff(siteTime, "hours").hours;
     features[i] = {
       type: "Feature",
       geometry: {
@@ -82,7 +82,7 @@ export function purpleairPropertiesToIconOptions(properties) {
     fillColor:
       properties.latency > 4
         ? "#bbb"
-        : pm25ToColor(properties.epa_nowcast),
+        : pm25ToColor(Number(properties.epa_nowcast)),
     color: "#000",
     weight: 1,
     opacity: 0.2,
@@ -100,7 +100,7 @@ export function clarityPropertiesToIconOptions(properties) {
     radius: 4,
     shape: "diamond",
     fillColor:
-      latency > 4 ? "#bbb" : pm25ToColor(properties["last_nowcast"]),
+      latency > 4 ? "#bbb" : pm25ToColor(Number(properties["last_nowcast"])),
     color: "#000",
     weight: 1,
     opacity: 0.2,
