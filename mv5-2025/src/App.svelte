@@ -1,4 +1,6 @@
 <script>
+	import { onMount } from 'svelte';
+
   // Svelte stores
   import {
 		VERSION,
@@ -9,16 +11,21 @@
 		hmsFiresCount,
 	} from './stores/gui-store.js';
   import { all_monitors } from './stores/monitor-data-store.js';
+  import { pas } from './stores/purpleair-data-store.js';
   import { clarity } from './stores/clarity-data-store.js';
   import { hms_fires_csv } from './stores/hms-data-store.js';
-
-
 
   // Svelte Components
   import NavBar from "./components/NavBar.svelte";
   import AlertBox from "./components/AlertBox.svelte";
 	import LeafletMap from "./components/LeafletMap.svelte";
 
+  // Force loading to ensure ~Count is updated
+  onMount(() => {
+    pas.load?.();
+    clarity.load?.();
+		hms_fires_csv.load?.();
+  });
 </script>
 
 <main>
@@ -41,10 +48,45 @@
 		<p>Loading monitor data...</p>
 	{:then}
 
-		<p class="status">
-			Showing {$monitorCount} monitors, and {$hmsFiresCount} HMS fire detections.
-		</p>
+		<!-- Current status -->
+		{#if $monitorCount + $purpleairCount + $clarityCount + $hmsFiresCount > 0}
+			<p class="status">
+				Showing
+				{#if $monitorCount > 0}
+					{$monitorCount} monitors
+					{#if $purpleairCount > 0 || $clarityCount > 0 || $hmsFiresCount > 0}, {/if}
+				{/if}
+				{#if $purpleairCount > 0}
+					{$purpleairCount} PurpleAir sensors
+					{#if $clarityCount > 0 || $hmsFiresCount > 0}, {/if}
+				{/if}
+				{#if $clarityCount > 0}
+					{$clarityCount} Clarity sensors
+					{#if $hmsFiresCount > 0}, {/if}
+				{/if}
+				{#if $hmsFiresCount > 0}
+					{$hmsFiresCount} HMS fire detections
+				{/if}.
+			</p>
+		{/if}
 
+		{#if $monitorCount === 0 || $purpleairCount === 0 || $clarityCount === 0 || $hmsFiresCount === 0}
+			<p class="status" style="font-style: italic">
+				Waiting for
+				{#if $monitorCount === 0}monitor data{/if}
+				{#if $purpleairCount === 0}
+					{#if $monitorCount === 0}, {/if}PurpleAir data
+				{/if}
+				{#if $clarityCount === 0}
+					{#if $monitorCount === 0 || $purpleairCount === 0}, {/if}Clarity data
+				{/if}
+				{#if $hmsFiresCount === 0}
+					{#if $monitorCount === 0 || $purpleairCount === 0 || $clarityCount === 0}, {/if}HMS fire data
+				{/if}...
+			</p>
+		{/if}
+
+		<!-- Leaflet Map -->
 		<div >
 			<LeafletMap width="1200px" height="400px"/>
 		</div>

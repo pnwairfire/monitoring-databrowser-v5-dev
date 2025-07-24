@@ -9,13 +9,13 @@ import { pm25ToColor } from "air-monitor-plots";
 
 // Icon style
 export function monitorPropertiesToIconOptions(properties) {
-  const latency = parseInt(properties["last_latency"]);
+  const latency = parseInt(properties.last_latency);
   const options = {
-    radius: properties["deploymentType"] == "Temporary" ? 7 : 8,
+    radius: properties.deploymentType == "Temporary" ? 7 : 8,
     shape:
       properties["deploymentType"] == "Temporary" ? "triangle-up" : "circle",
     fillColor:
-      latency > 4 ? "#bbb" : pm25ToColor(Number(properties["last_nowcast"])),
+      latency > 4 ? "#bbb" : pm25ToColor(Number(properties.last_nowcast)),
     color: "#000",
     weight: 1,
     opacity: 1,
@@ -26,28 +26,30 @@ export function monitorPropertiesToIconOptions(properties) {
 
 /* ----- PurpleAir functions ------------------------------------------------ */
 
+/**
+ * Converts a PurpleAir synoptic CSV-style array into a GeoJSON FeatureCollection.
+ *
+ * 'pas' synopticData:
+ *   epa_nowcast: 7.7
+ *   epa_pm25: 7.2
+ *   latitude: 45.031963
+ *    longitude: -110.71382
+ *   raw_pm25: 4.4
+ *   sensor_index: 154193
+ *   timezone: "America/Denver"
+ *   utc_ts: "2023-07-11 21:00:00+0000"
+ *
+ * @param {Array<Object>} synopticData - Array of sensor records with fields like `latitude`, `longitude`, `epa_pm25`, etc.
+ * @returns {Object} A GeoJSON FeatureCollection of PurpleAir sensor points.
+ */
 export function purpleairCreateGeoJSON(synopticData) {
-  // 'pas' synopticData
-  //
-  // epa_nowcast: 7.7
-  // epa_pm25: 7.2
-  // latitude: 45.031963
-  // longitude: -110.71382
-  // raw_pm25: 4.4
-  // sensor_index: 154193
-  // timezone: "America/Denver"
-  // utc_ts: "2023-07-11 21:00:00+0000"
+  const now = DateTime.utc();
 
-  let features = Array(synopticData.length);
-
-  let bop = 1;
-
-  for (let i = 0; i < synopticData.length; i++) {
-    let site = synopticData[i];
-    const now = DateTime.utc();
+  const features = synopticData.map((site) => {
     const siteTime = DateTime.fromISO(site.utc_ts, { zone: "utc" });
-    const site_latency = now.diff(siteTime, "hours").hours;
-    features[i] = {
+    const latency = now.diff(siteTime, "hours").hours;
+
+    return {
       type: "Feature",
       geometry: {
         type: "Point",
@@ -55,23 +57,21 @@ export function purpleairCreateGeoJSON(synopticData) {
       },
       properties: {
         deviceDeploymentID: site.sensor_index,
-        locationName: "PurpleAir " + site.sensor_index,
+        locationName: `PurpleAir ${site.sensor_index}`,
         epa_nowcast: site.epa_nowcast,
         epa_pm25: site.epa_pm25,
         raw_pm25: site.raw_pm25,
         timezone: site.timezone,
         utc_ts: site.utc_ts,
-        latency: site_latency,
+        latency: latency,
       },
     };
-  }
+  });
 
-  let geojsonObj = {
+  return {
     type: "FeatureCollection",
-    features: features,
+    features,
   };
-
-  return geojsonObj;
 }
 
 // Icon style
@@ -95,12 +95,12 @@ export function purpleairPropertiesToIconOptions(properties) {
 
 // Icon style
 export function clarityPropertiesToIconOptions(properties) {
-  const latency = parseInt(properties["last_latency"]);
+  const latency = parseInt(properties.last_latency);
   const options = {
     radius: 4,
     shape: "diamond",
     fillColor:
-      latency > 4 ? "#bbb" : pm25ToColor(Number(properties["last_nowcast"])),
+      latency > 4 ? "#bbb" : pm25ToColor(Number(properties.last_nowcast)),
     color: "#000",
     weight: 1,
     opacity: 0.2,

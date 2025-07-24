@@ -1,5 +1,4 @@
-
-import { DateTime } from 'luxon';
+import { DateTime } from "luxon";
 import { asyncReadable, derived, writable } from "@square/svelte-store";
 import Monitor from "air-monitor";
 
@@ -19,7 +18,8 @@ import { loadGeojson } from "../js/utils-loaders.js";
 export const clarityLoadTime = writable(1000);
 
 // GeoJSON files with sensor locations and metadata
-const CLARITY_LATEST_GEOJSON = "https://airfire-data-exports.s3.us-west-2.amazonaws.com/sensors/v3/PM2.5/latest/geojson/mv4_clarity_PM2.5_latest.geojson";
+const CLARITY_LATEST_GEOJSON =
+  "https://airfire-data-exports.s3.us-west-2.amazonaws.com/sensors/v3/PM2.5/latest/geojson/mv4_clarity_PM2.5_latest.geojson";
 
 // ----- geojson ---------------------------------------------------------------
 
@@ -49,7 +49,7 @@ export const clarity = asyncReadable(
     monitor.data = monitor.data.slice(-168);
     clarityCount.set(monitor.count());
     let end = DateTime.now();
-    let elapsed = end.diff(start, 'seconds').seconds;
+    let elapsed = end.diff(start, "seconds").seconds;
     let rounded = Math.round(10 * elapsed) / 10;
     clarityLoadTime.set(rounded);
     console.log(`loaded clarity sensor data in ${rounded} seconds`);

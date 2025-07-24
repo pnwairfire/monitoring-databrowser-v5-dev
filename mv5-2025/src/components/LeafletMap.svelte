@@ -20,7 +20,7 @@
     wrcc_geojson,
   } from '../stores/monitor-data-store.js';
 
-  // import { pas, patCart } from '../stores/purpleair-data-store.js';
+  import { pas, patCart } from '../stores/purpleair-data-store.js';
 
   import { clarity, clarity_geojson } from '../stores/clarity-data-store.js';
 
@@ -66,6 +66,7 @@
     hmsSmoke: null,
     hmsFires: null,
     clarity: null,
+    purpleair: null,
     airnow: null,
     airsis: null,
     wrcc: null,
@@ -79,6 +80,7 @@
       airnow_geojson.reload();
       airsis_geojson.reload();
       wrcc_geojson.reload();
+      pas.reload();
       clarity_geojson.reload();
       hms_smoke_geojson.reload();
       hms_fires_csv.reload();
@@ -103,6 +105,7 @@
     layers.hmsSmoke = L.layerGroup().addTo(map);
     layers.hmsFires = L.layerGroup().addTo(map);   // below monitors
     layers.clarity = L.layerGroup().addTo(map);
+    layers.purpleair = L.layerGroup().addTo(map);
     layers.airsis = L.layerGroup().addTo(map);
     layers.wrcc = L.layerGroup().addTo(map);
     layers.airnow = L.layerGroup().addTo(map);
@@ -124,6 +127,19 @@
         layers.hmsFires.addLayer(layer);
       }
     });
+
+    // PurpleAir sensors
+    // pas.load().then(function(synopticData) {
+    //   let geojsonData = purpleairCreateGeoJSON(synopticData);
+    //   PurpleAirLayer = createPurpleAirLayer(geojsonData);
+    // });
+    pas.subscribe((synopticData) => {
+      if (synopticData) {
+        const geojson = purpleairCreateGeoJSON(synopticData);
+        const layer =createPurpleAirLayer(geojson);
+        layers.purpleair.addLayer(layer);
+      }
+    })
 
     // Clarity sensors
     clarity_geojson.subscribe((geojson) => {
@@ -170,6 +186,7 @@
     L.control.layers(null, {
       "HMS Fires": layers.hmsFires,
       "HMS Smoke": layers.hmsSmoke,
+      "PurpleAir": layers.purpleair,
       "Clarity": layers.clarity,
       "AirNow": layers.airnow,
       "AIRSIS": layers.airsis,
@@ -368,89 +385,91 @@
     replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids, $selected_clarity_ids);
   }
 
-
-
-
-
   /* ----- PurpleAir functions ---------------------------------------------- */
 
-  // function createPurpleAirLayer(geojson) {
-  //   let this_layer = L.geoJSON(geojson, {
-  //     // Icon appearance
-  //     pointToLayer: function (feature, latlng) {
-  //       // Only show markers if the latency is less than 3 * 24 hours
-  //       if ( parseInt(feature.properties.latency) < 24 * 3) {
-  //         let marker = L.shapeMarker(latlng, purpleairPropertiesToIconOptions(feature.properties));
-  //         // https://stackoverflow.com/questions/34322864/finding-a-specific-layer-in-a-leaflet-layergroup-where-layers-are-polygons
-  //         marker.id = feature.properties.deviceDeploymentID.toString();
-  //         // // //marker.setStyle({"zIndexOffset": feature.properties.last_nowcast * 10})
-  //         if ($selected_purpleair_ids.find(o => o === marker.id)) {
-  //           marker.setStyle({opacity: 1.0, weight: 2});
-  //         } else {
-  //           marker.setStyle({opacity: 0.2, weight: 1});
-  //         }
-  //         return(marker);
-  //       }
-  //     },
+  /**
+   * Creates a Leaflet GeoJSON layer for PurpleAir sensors with latency filtering and interactivity.
+   *
+   * @param {Object} geojson - A GeoJSON FeatureCollection of PurpleAir sensor points.
+   * @returns {L.GeoJSON} A Leaflet layer containing styled markers and interactive behavior.
+   */
+  function createPurpleAirLayer(geojson) {
+    const this_layer = L.geoJSON(geojson, {
+      // Customize marker rendering
+      pointToLayer: function (feature, latlng) {
+        const props = feature.properties;
 
-  //     // Icon behavior
-  //     onEachFeature: function (feature, layer) {
-  //       layer.on('mouseover', function (e) {
-  //         $hovered_purpleair_id = feature.properties.deviceDeploymentID;
-  //         $use_hovered_purpleair = true;
-  //       });
-  //       layer.on('mouseout', function (e) {
-  //         $hovered_purpleair_id = "";
-  //         $use_hovered_purpleair = false;
-  //       });
-  //       layer.on('click', function (e) {
-  //         // $use_hovered_purpleair = true;
-  //         purpleairIconClick(e);
-  //       });
-  //     }
-  //   });
-  //   return this_layer;
-  // }
+        // Filter out stale sensors (>3 days latency)
+        if (parseInt(props.latency) >= 24 * 3) return;
 
-  // // Sensor icon click behavior
-  // async function purpleairIconClick(e) {
-  //   const feature = e.target.feature;
-  //   const id = feature.properties.deviceDeploymentID;
-  //   const found = $selected_purpleair_ids.find((o) => o == id);
+        const marker = L.shapeMarker(latlng, purpleairPropertiesToIconOptions(props));
+        const isSelected = $selected_purpleair_ids.includes(props.deviceDeploymentID);
+        marker.setStyle({
+          opacity: isSelected ? 1.0 : 0.2,
+          weight: isSelected ? 2 : 1
+        });
 
-  //   if (!found) {
+        return marker;
+      },
 
-  //     // Load pat data
-  //     const index = $patCart.items.findIndex((item) => item.id === id);
-  //     if (index !== -1) {
-  //       console.log("pat id: " + id + " is already loaded.");
-  //     } else {
-  //       console.log("Downloading PurpleAir data for id = " + id);
-  //       let purpleairData = await getPurpleAirData(id);
-  //       const pa_object = { id: id, data: purpleairData };
-  //       patCart.addItem(pa_object);
-  //     }
-  //     console.log("patCart.count = " + $patCart.count);
-  //     // Now update selected_purpleair_ids
-  //     const ids = $selected_purpleair_ids;
-  //     const length = ids.unshift(id);
-  //     $selected_purpleair_ids = ids;
-  //     e.target.setStyle({opacity: 1.0, weight: 2});
+      // Define interactive behavior
+      onEachFeature: function (feature, layer) {
+        const id = feature.properties.deviceDeploymentID;
 
-  //   } else {
+        layer.on('mouseover', () => {
+          $hovered_purpleair_id = id;
+          $use_hovered_purpleair = true;
+        });
 
-  //     // TODO:  Should we unload pat data?
-  //     const ids = $selected_purpleair_ids;
-  //     const index = ids.indexOf(id);
-  //     const removedItem = ids.splice(index, 1);
-  //     $selected_purpleair_ids = ids;
-  //     e.target.setStyle({opacity: 0.2, weight: 1});
+        layer.on('mouseout', () => {
+          $hovered_purpleair_id = "";
+          $use_hovered_purpleair = false;
+        });
 
-  //   }
+        layer.on('click', (e) => {
+          purpleairIconClick(e);
+        });
+      }
+    });
 
-  //   replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids); //, $selected_clarity_ids);
+    return this_layer;
+  }
 
-  // }
+  /**
+   * Handles click events on PurpleAir sensor markers.
+   * Loads and stores time series data if selected, and updates map and URL state.
+   *
+   * @param {Object} e - Leaflet event triggered by marker click.
+   */
+  async function purpleairIconClick(e) {
+    const id = e.target.feature.properties.deviceDeploymentID;
+    const isSelected = $selected_purpleair_ids.includes(id);
+
+    if (!isSelected) {
+      // Load and add time series data if not already in the cart
+      if (!$patCart.items.some(item => item.id === id)) {
+        console.log("Downloading PurpleAir data for id =", id);
+        const purpleairData = await getPurpleAirData(id);
+        patCart.addItem({ id, data: purpleairData });
+      } else {
+        console.log("pat id:", id, "is already loaded.");
+      }
+
+      // Update selected IDs (immutable update)
+      $selected_purpleair_ids = [id, ...$selected_purpleair_ids];
+      e.target.setStyle({ opacity: 1.0, weight: 2 });
+
+    } else {
+      // Deselect and update state
+      $selected_purpleair_ids = $selected_purpleair_ids.filter((x) => x !== id);
+      e.target.setStyle({ opacity: 0.2, weight: 1 });
+
+      // Optional: consider removing time series from patCart here
+      // patCart.removeItem({ id });
+    }
+
+    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids);
+  }
 
   /* ----- HMS functions ---------------------------------------------------- */
 
