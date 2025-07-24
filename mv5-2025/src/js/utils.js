@@ -2,7 +2,7 @@
 //
 // NOTE:  These functions do not need access to any reactive variables.
 
-// Replace window history without reloading a page.
+// Replace window history without reloading the page.
 export function replaceWindowHistory(
   centerlat = "",
   centerlon = "",
@@ -11,46 +11,69 @@ export function replaceWindowHistory(
   purpleair = "",
   clarity = ""
 ) {
-  let base = window.location.origin + window.location.pathname;
+  const params = new URLSearchParams();
 
   if (centerlat !== "") {
-    centerlat = "centerlat=" + Math.round(centerlat * 10000) / 10000;
+    params.set("centerlat", (Math.round(centerlat * 10000) / 10000).toString());
   }
 
   if (centerlon !== "") {
-    centerlon = "centerlon=" + Math.round(centerlon * 10000) / 10000;
+    params.set("centerlon", (Math.round(centerlon * 10000) / 10000).toString());
   }
 
   if (zoom !== "") {
-    zoom = "zoom=" + zoom;
+    params.set("zoom", zoom.toString());
   }
 
-  if (monitors !== "" && monitors.length > 0) {
-    monitors = "monitors=" + monitors.reduce((a, o) => a + "," + o);
+  if (Array.isArray(monitors) && monitors.length > 0) {
+    params.set("monitors", monitors.join(","));
   }
 
-  if (purpleair !== "" && purpleair.length > 0) {
-    purpleair = "purpleair=" + purpleair.reduce((a, o) => a + "," + o);
+  if (Array.isArray(purpleair) && purpleair.length > 0) {
+    params.set("purpleair", purpleair.join(","));
   }
 
-  if (clarity !== "" && clarity.length > 0) {
-    clarity = "clarity=" + clarity.reduce((a, o) => a + "," + o);
+  if (Array.isArray(clarity) && clarity.length > 0) {
+    params.set("clarity", clarity.join(","));
   }
 
-  const url =
-    base +
-    "?" +
-    centerlat +
-    "&" +
-    centerlon +
-    "&" +
-    zoom +
-    "&" +
-    monitors +
-    "&" +
-    purpleair;
+  const base = window.location.origin + window.location.pathname;
+  const url = `${base}?${params.toString()}`;
 
-  window.history.replaceState("dummy", "Monitoring v5", url);
+  window.history.replaceState(null, "Monitoring v5", url);
+}
+
+// Parse window URL
+export function parseWindowQueryParams() {
+  const params = new URLSearchParams(window.location.search);
+
+  const result = {};
+
+  if (params.has("centerlat")) {
+    result.centerlat = parseFloat(params.get("centerlat"));
+  }
+
+  if (params.has("centerlon")) {
+    result.centerlon = parseFloat(params.get("centerlon"));
+  }
+
+  if (params.has("zoom")) {
+    result.zoom = parseInt(params.get("zoom"), 10);
+  }
+
+  if (params.has("monitors")) {
+    result.monitors = params.get("monitors").split(",").filter(Boolean);
+  }
+
+  if (params.has("purpleair")) {
+    result.purpleair = params.get("purpleair").split(",").filter(Boolean);
+  }
+
+  if (params.has("clarity")) {
+    result.clarity = params.get("clarity").split(",").filter(Boolean);
+  }
+
+  return result;
 }
 
 // Create data-service URL

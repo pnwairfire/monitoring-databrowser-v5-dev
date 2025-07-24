@@ -59,6 +59,9 @@
   // import { getPurpleAirData } from '../js/utils-purpleair.js';
   import { replaceWindowHistory } from '../js/utils.js';
 
+  let map;
+  let refreshInterval;
+
   let layers = {
     hmsSmoke: null,
     hmsFires: null,
@@ -67,25 +70,24 @@
     wrcc: null,
   };
 
-  let refreshInterval;  // store the interval ID so we can clear it later
+  onMount(() => {
+    createMap();
 
-  // TODO:  Status text could say how old the map data is.
+    // Refresh store data every 10 minutes
+    refreshInterval = setInterval(() => {
+      airnow_geojson.reload();
+      airsis_geojson.reload();
+      wrcc_geojson.reload();
+      hms_smoke_geojson.reload();
+      hms_fires_csv.reload();
+      mapLastUpdated.set(DateTime.now());
+    }, 10 * 60 * 1000); // 10 minutes
+  });
 
-  // Reload geojson data every 10 minutes
-  setInterval(() => {
-    airnow_geojson.reload();
-    airsis_geojson.reload();
-    wrcc_geojson.reload();
-    //clarity.reload();
-    // pas.reload();
-    // Wait 10 seconds for all data to load before recreating the map
-    setTimeout(() => {
-      map.remove();
-      createMap();
-    }, 1000 * 10)   // 10 seconds
-  }, 1000 * 60 * 10) // 10 minutes
-
-  let map;
+  onDestroy(() => {
+    if (map) map.remove();
+    if (refreshInterval) clearInterval(refreshInterval);
+  });
 
   async function createMap() {
 
@@ -114,6 +116,7 @@
     // Subscribe to HMS fire points
     hms_fires_csv.subscribe((csvData) => {
       if (csvData) {
+        layers.hmsFires.clearLayers(); // clear existing points
         const layer = createHMSFiresLayer_csv(csvData);
         layers.hmsFires.addLayer(layer);
       }
@@ -211,30 +214,9 @@
       //$use_hovered_clarity = false;
     });
 
-    // ----- Refresh and onDestroy ---------------------------------------------
-
-    // Refresh store data every 10 minutes without recreating the map
-    refreshInterval = setInterval(() => {
-      airnow_geojson.reload();
-      airsis_geojson.reload();
-      wrcc_geojson.reload();
-      hms_smoke_geojson.reload();
-      hms_fires_csv.reload();
-    mapLastUpdated.set(DateTime.now());
-    }, 10 * 60 * 200); // 2 minutes
-
-    onDestroy(() => {
-      if (map) map.remove();
-      if (refreshInterval) clearInterval(refreshInterval);
-    });
-
   }
 
 	onMount(createMap);
-
-	onDestroy(() => {
-		if (map) map.remove();
-	});
 
   /* ------------------------------------------------------------------------ */
   /* -------------------------- End of Map ---------------------------------- */
@@ -243,31 +225,29 @@
   /* ----- Monitor functions ------------------------------------------------ */
 
   /**
-   * @param {geojson} geojson to be converted to a leaflet layer
-   * @returns
+   * Creates a Leaflet GeoJSON layer for air quality monitors,
+   * filtering out stale or excluded entries and applying interactive behavior.
+   *
+   * @param {Object} geojson - A GeoJSON FeatureCollection of monitor points.
+   * @returns {L.GeoJSON} A Leaflet GeoJSON layer with custom markers and interactivity.
    */
   function createMonitorLayer(geojson) {
-    let this_layer = L.geoJSON(geojson, {
+    const this_layer = L.geoJSON(geojson, {
+
       // Icon appearance
       pointToLayer: function (feature, latlng) {
-        // NOTE:  This is where I filter for Susan's JBLM research monitors -- only show non-matches
-        if ( feature.properties.deviceDeploymentID.indexOf("_pnwusfs") === -1 ) {
+        const props = feature.properties;
 
-          // Only show markers if the latency is less than 3 * 24 hours
-          if ( parseInt(feature.properties.last_latency) < 24 * 3) {
-            let marker = L.shapeMarker(latlng, monitorPropertiesToIconOptions(feature.properties));
-            // https://stackoverflow.com/questions/34322864/finding-a-specific-layer-in-a-leaflet-layergroup-where-layers-are-polygons
-            marker.id = feature.properties.deviceDeploymentID.toString();
-            // // //marker.setStyle({"zIndexOffset": feature.properties.last_nowcast * 10})
-            if ($selected_monitor_ids.find(o => o === marker.id)) {
-              marker.setStyle({weight: 3});
-            } else {
-              marker.setStyle({weight: 1});
-            }
-            return(marker);
-          }
+        if (
+          props.deviceDeploymentID.includes('_pnwusfs') || // Skip Susan's JBLM research monitors
+          parseInt(props.last_latency) >= 24 * 3           // Skip stale monitors
+        ) return;
 
-        }
+        const marker = L.shapeMarker(latlng, monitorPropertiesToIconOptions(props));
+        const isSelected = $selected_monitor_ids.includes(props.deviceDeploymentID);
+        marker.setStyle({ weight: isSelected ? 3 : 1 });
+
+        return marker;
       },
 
       // Icon behavior
@@ -290,23 +270,94 @@
 
   // Monitor icon click behavior
   function monitorIconClick(e) {
-    const feature = e.target.feature;
-    const id = feature.properties.deviceDeploymentID;
-    const found = $selected_monitor_ids.find((o) => o == id);
-    if (!found) {
-      const ids = $selected_monitor_ids;
-      const length = ids.unshift(id);
-      $selected_monitor_ids = ids;
-      e.target.setStyle({weight: 3});
+    const id = e.target.feature.properties.deviceDeploymentID;
+    const isSelected = $selected_monitor_ids.includes(id);
+
+    if (isSelected) {
+      // Remove it from selected_monitor_ids
+      $selected_monitor_ids = $selected_monitor_ids.filter((x) => x !== id);
+      e.target.setStyle({ weight: 1 });
     } else {
-      const ids = $selected_monitor_ids;
-      const index = ids.indexOf(id);
-      const removedItem = ids.splice(index, 1);
-      $selected_monitor_ids = ids;
-      e.target.setStyle({weight: 1});
+      // Add it to selected_monitor_ids
+      $selected_monitor_ids = [id, ...$selected_monitor_ids];
+      e.target.setStyle({ weight: 3 });
     }
-    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids); //, $selected_clarity_ids);
+
+    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids);
   }
+
+  /* ----- Clarity functions ------------------------------------------------ */
+
+  /**
+   * Creates a Leaflet GeoJSON layer for Clarity sensor locations,
+   * filtering out stale data and applying interactive behavior.
+   *
+   * @param {Object} geojson - A GeoJSON FeatureCollection of Clarity sensor points.
+   * @returns {L.GeoJSON} A Leaflet GeoJSON layer with custom markers and interactivity.
+   */
+  function createClarityLayer(geojson) {
+    const this_layer = L.geoJSON(geojson, {
+
+      // Icon appearance
+      pointToLayer: function (feature, latlng) {
+        const props = feature.properties;
+
+        if (parseInt(props.last_latency) >= 24 * 3) return; // Skip stale sensors
+
+        const marker = L.shapeMarker(latlng, clarityPropertiesToIconOptions(props));
+        const isSelected = $selected_clarity_ids.includes(props.deviceDeploymentID);
+        marker.setStyle({
+          opacity: isSelected ? 1.0 : 0.2,
+          weight: isSelected ? 2 : 1
+        });
+
+        return marker;
+      },
+
+      // Icon behavior
+      onEachFeature: function (feature, layer) {
+        layer.on('mouseover', function () {
+          $hovered_clarity_id = feature.properties.deviceDeploymentID;
+          $use_hovered_clarity = true;
+        });
+        layer.on('mouseout', function () {
+          $hovered_clarity_id = "";
+          $use_hovered_clarity = false;
+        });
+        layer.on('click', function (e) {
+          clarityIconClick(e);
+        });
+      }
+    });
+
+    return this_layer;
+  }
+
+  /**
+   * Handles clicking on a Clarity marker: toggles its selected state and updates the browser URL.
+   *
+   * @param {Object} e - Leaflet event triggered by clicking a marker.
+   */
+  function clarityIconClick(e) {
+    const id = e.target.feature.properties.deviceDeploymentID;
+    const isSelected = $selected_clarity_ids.includes(id);
+
+    if (isSelected) {
+      // Remove it from selected_clarity_ids
+      $selected_clarity_ids = $selected_clarity_ids.filter((x) => x !== id);
+      e.target.setStyle({ opacity: 0.2, weight: 1 });
+    } else {
+      // Add it to selected_clarity_ids
+      $selected_clarity_ids = [id, ...$selected_clarity_ids];
+      e.target.setStyle({ opacity: 1.0, weight: 2 });
+    }
+
+    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids, $selected_clarity_ids);
+  }
+
+
+
+
 
   /* ----- PurpleAir functions ---------------------------------------------- */
 
@@ -388,110 +439,55 @@
 
   // }
 
-  /* ----- Clarity functions ------------------------------------------------ */
-
-  /**
-   * @param {geojson} geojson to be converted to a leaflet layer
-   * @returns
-   */
-   function createClarityLayer(geojson) {
-    let this_layer = L.geoJSON(geojson, {
-      // Icon appearance
-      pointToLayer: function (feature, latlng) {
-        // Only show markers if the latency is less than 3 * 24 hours
-        if ( parseInt(feature.properties.last_latency) < 24 * 3) {
-          let marker = L.shapeMarker(latlng, clarityPropertiesToIconOptions(feature.properties));
-          // https://stackoverflow.com/questions/34322864/finding-a-specific-layer-in-a-leaflet-layergroup-where-layers-are-polygons
-          marker.id = feature.properties.deviceDeploymentID.toString();
-          // // //marker.setStyle({"zIndexOffset": feature.properties.last_nowcast * 10})
-          if ($selected_clarity_ids.find(o => o === marker.id)) {
-            marker.setStyle({opacity: 1.0, weight: 2});
-          } else {
-            marker.setStyle({opacity: 0.2, weight: 1});
-          }
-          return(marker);
-        }
-      },
-
-      // Icon behavior
-      onEachFeature: function (feature, layer) {
-        layer.on('mouseover', function (e) {
-          $hovered_clarity_id = feature.properties.deviceDeploymentID;
-          $use_hovered_clarity = true;
-        });
-        layer.on('mouseout', function (e) {
-          $hovered_clarity_id = "";
-          $use_hovered_clarity = false;
-        });
-        layer.on('click', function (e) {
-          // $use_hovered_clarity = true;
-          clarityIconClick(e);
-        });
-      }
-    });
-    return this_layer;
-  }
-
-  // Monitor icon click behavior
-  function clarityIconClick(e) {
-    const feature = e.target.feature;
-    const id = feature.properties.deviceDeploymentID;
-    const found = $selected_clarity_ids.find((o) => o == id);
-    if (!found) {
-      const ids = $selected_clarity_ids;
-      const length = ids.unshift(id);
-      $selected_clarity_ids = ids;
-      e.target.setStyle({opacity: 1.0, weight: 2});
-    } else {
-      const ids = $selected_clarity_ids;
-      const index = ids.indexOf(id);
-      const removedItem = ids.splice(index, 1);
-      $selected_clarity_ids = ids;
-      e.target.setStyle({opacity: 0.2, weight: 1});
-    }
-    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids, $selected_clarity_ids);
-  }
-
   /* ----- HMS functions ---------------------------------------------------- */
 
-   /**
-   * @param {csv} csv to be converted to a leaflet layer
-   * @returns
+  /**
+   * Creates a Leaflet layer group containing HMS fire detection points,
+   * rendered efficiently using a shared canvas renderer.
+   *
+   * Each fire point is represented as a small orange circle marker.
+   * The layer group can be added to a map or to another parent layer group.
+   *
+   * @param {Array<Object>} csv - An array of fire detection records, each with `latitude` and `longitude` fields.
+   * @returns {L.LayerGroup} A Leaflet layer group with circle markers for all fire points.
    */
-   function createHMSFiresLayer_csv(csv) {
+  function createHMSFiresLayer_csv(csv) {
+    const renderer = L.canvas({ padding: 0.5 });
+    const layerGroup = L.layerGroup();
 
-    let this_layer = L.canvas({ padding: 0.5 })
+    for (let i = 0; i < csv.length; i++) {
+      const { latitude, longitude } = csv[i];
 
-    for (var i = 0; i < csv.length; i += 1) { // 100k points
-      L.circleMarker([csv[i].latitude, csv[i].longitude], {
-        renderer: this_layer,
+      const marker = L.circleMarker([latitude, longitude], {
+        renderer,
         radius: 3,
         fillColor: '#d7721c',
         fillOpacity: 0.5,
         weight: 1.5,
         color: "#e9c28f",
         opacity: 0.5,
-      }).addTo(map);
+      });
+
+      marker.addTo(layerGroup);
     }
 
-    return this_layer;
+    return layerGroup;
   }
 
   /**
-   * @param {geojson} geojson to be converted to a leaflet layer
-   * @returns
+   * Creates a Leaflet GeoJSON layer representing HMS smoke plumes.
+   * @param {Object} geojson - A valid GeoJSON FeatureCollection of polygons.
+   * @returns {L.GeoJSON} A styled Leaflet GeoJSON layer.
    */
    function createHMSSmokeLayer(geojson) {
     let this_layer = L.geoJSON(geojson, {
-      style: function style(feature) {
-        return {
-            fillColor: 'gray',
-            weight: 1,
-            opacity: 0.5,
-            color: 'gray',
-            fillOpacity: 0.15
-        };
-      }
+      style: (feature) => ({
+        fillColor: 'gray',
+        weight: 1,
+        opacity: 0.5,
+        color: 'gray',
+        fillOpacity: 0.15
+      })
     });
     return this_layer;
   }
