@@ -72,6 +72,23 @@
     wrcc: null,
   };
 
+  // --- Enforce stacking order (bottom to top) ---
+  function enforceLayerOrder() {
+    console.log("Enforcing layer order...");
+
+console.log(typeof layers.hmsSmoke.bringToBack); // should be "function"
+console.log(typeof layers.purpleair.bringToFront); // should be "function"
+
+    layers.hmsSmoke?.bringToBack?.();
+    layers.hmsFires?.bringToBack?.();
+
+    layers.clarity?.bringToFront?.();
+    layers.purpleair?.bringToFront?.();
+    layers.airsis?.bringToFront?.();
+    layers.wrcc?.bringToFront?.();
+    layers.airnow?.bringToFront?.();
+  }
+
   onMount(() => {
     createMap();
 
@@ -101,75 +118,97 @@
 
     // ----- Add Layers --------------------------------------------------------
 
-    // Create empty Leaflet LayerGroups in this specific order
-    layers.hmsSmoke = L.layerGroup().addTo(map);
-    layers.hmsFires = L.layerGroup().addTo(map);   // below monitors
-    layers.clarity = L.layerGroup().addTo(map);
-    layers.purpleair = L.layerGroup().addTo(map);
-    layers.airsis = L.layerGroup().addTo(map);
-    layers.wrcc = L.layerGroup().addTo(map);
-    layers.airnow = L.layerGroup().addTo(map);
+    // HMS Smoke
+    let hmsSmokeLayer = createHMSSmokeLayer($hms_smoke_geojson);
+    layers.hmsSmoke = hmsSmokeLayer.addTo(map);
 
-    // Subscribe to HMS smoke
+    // HMS Fires
+    let hmsFiresLayer = createHMSFiresLayer_csv($hms_fires_csv);
+    layers.hmsFires = hmsFiresLayer.addTo(map);
+
+    // PurpleAir
+    let purpleairLayer = createPurpleAirLayer(purpleairCreateGeoJSON($pas));
+    layers.purpleair = purpleairLayer.addTo(map);
+
+    // Clarity
+    let clarityLayer = createClarityLayer($clarity_geojson);
+    layers.clarity = clarityLayer.addTo(map);
+
+    // AIRSIS
+    let airsisLayer = createMonitorLayer($airsis_geojson);
+    layers.airsis = airsisLayer.addTo(map);
+
+    // WRCC
+    let wrccLayer = createMonitorLayer($wrcc_geojson);
+    layers.wrcc = wrccLayer.addTo(map);
+
+    // AirNow
+    let airnowLayer = createMonitorLayer($airnow_geojson);
+    layers.airnow = airnowLayer.addTo(map);
+
+    // ----- Subscriptions for Reactive Updates ---------------------------------
+
+    // HMS Smoke
     hms_smoke_geojson.subscribe((geojson) => {
-      layers.hmsSmoke.clearLayers();
       if (geojson) {
-        const layer = createHMSSmokeLayer(geojson);
-        layers.hmsSmoke.addLayer(layer);
+        map.removeLayer(layers.hmsSmoke);
+        layers.hmsSmoke = createHMSSmokeLayer(geojson).addTo(map);
+        enforceLayerOrder();
       }
     });
 
-    // Subscribe to HMS fire points
+    // HMS Fires
     hms_fires_csv.subscribe((csvData) => {
       if (csvData) {
-        layers.hmsFires.clearLayers(); // clear existing points
-        const layer = createHMSFiresLayer_csv(csvData);
-        layers.hmsFires.addLayer(layer);
+        map.removeLayer(layers.hmsFires);
+        layers.hmsFires = createHMSFiresLayer_csv(csvData).addTo(map);
+        enforceLayerOrder();
       }
     });
 
-    // PurpleAir sensors
-    // pas.load().then(function(synopticData) {
-    //   let geojsonData = purpleairCreateGeoJSON(synopticData);
-    //   PurpleAirLayer = createPurpleAirLayer(geojsonData);
-    // });
+    // PurpleAir
     pas.subscribe((synopticData) => {
       if (synopticData) {
+        map.removeLayer(layers.purpleair);
         const geojson = purpleairCreateGeoJSON(synopticData);
-        const layer =createPurpleAirLayer(geojson);
-        layers.purpleair.addLayer(layer);
+        layers.purpleair = createPurpleAirLayer(geojson).addTo(map);
+        enforceLayerOrder();
       }
-    })
+    });
 
-    // Clarity sensors
+    // Clarity
     clarity_geojson.subscribe((geojson) => {
       if (geojson) {
-        const layer =createClarityLayer(geojson)
-        layers.clarity.addLayer(layer);
+        map.removeLayer(layers.clarity);
+        layers.clarity = createClarityLayer(geojson).addTo(map);
+        enforceLayerOrder();
       }
     });
 
-    // AIRSIS monitors
+    // AIRSIS
     airsis_geojson.subscribe((geojson) => {
       if (geojson) {
-        const layer =createMonitorLayer(geojson)
-        layers.airsis.addLayer(layer);
+        map.removeLayer(layers.airsis);
+        layers.airsis = createMonitorLayer(geojson).addTo(map);
+        enforceLayerOrder();
       }
     });
 
-    // WRCC monitors
+    // WRCC
     wrcc_geojson.subscribe((geojson) => {
       if (geojson) {
-        const layer =createMonitorLayer(geojson)
-        layers.wrcc.addLayer(layer);
+        map.removeLayer(layers.wrcc);
+        layers.wrcc = createMonitorLayer(geojson).addTo(map);
+        enforceLayerOrder();
       }
     });
 
-    // AirNow monitors
+    // AirNow
     airnow_geojson.subscribe((geojson) => {
       if (geojson) {
-        const layer =createMonitorLayer(geojson)
-        layers.airnow.addLayer(layer);
+        map.removeLayer(layers.airnow);
+        layers.airnow = createMonitorLayer(geojson).addTo(map);
+        enforceLayerOrder();
       }
     });
 
@@ -238,12 +277,14 @@
     // Ensure "hovered" plot is not shown after leaving the map
     map.on('mouseout', function () {
       $hovered_monitor_id = "";
-      // $hovered_purpleair_id = "";
+      $hovered_purpleair_id = "";
       $hovered_clarity_id = "";
-      // $use_hovered_purpleair = false;
+      $use_hovered_purpleair = false;
       $use_hovered_clarity = false;
     });
 
+    // Ensure HMS polygons and fire points are at the bottom
+    enforceLayerOrder();
   }
 
 	onMount(createMap);
