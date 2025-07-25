@@ -9,6 +9,14 @@
 		purpleairCount,
 		clarityCount,
 		hmsFiresCount,
+		centerLon,
+    centerLat,
+    zoom,
+		hovered_monitor_id,
+		selected_monitor_ids,
+		selected_purpleair_ids,
+		selected_clarity_ids,
+		current_slide,
 	} from './stores/gui-store.js';
   import { all_monitors } from './stores/monitor-data-store.js';
   import { pas } from './stores/purpleair-data-store.js';
@@ -19,6 +27,8 @@
   import NavBar from "./components/NavBar.svelte";
   import AlertBox from "./components/AlertBox.svelte";
 	import LeafletMap from "./components/LeafletMap.svelte";
+  import HoveredMetadataBox from "./components/HoveredMetadataBox.svelte";
+  import HoveredHourlyBarplot from "./components/HoveredHourlyBarplot.svelte";
 
   // Force loading to ensure ~Count is updated
   onMount(() => {
@@ -90,6 +100,20 @@
 		<div >
 			<LeafletMap width="1200px" height="400px"/>
 		</div>
+
+		<div id="hovered-row" class="flex-row">
+			<HoveredMetadataBox element_id="hovered-metadata-box" width="350px" height="160px"/>
+			<HoveredHourlyBarplot element_id="hovered_hourly" width="800px" height="200px"/>
+		</div>
+
+		<hr>
+
+		<div class="flex-row">
+			<span class="selected-devices">Selected Monitors:</span>
+			<span class="selected-devices-count">{$selected_monitor_ids.length} monitors</span>
+		</div>
+
+		<hr>
 
   {:catch}
 		<p style="color: red">An error occurred</p>
