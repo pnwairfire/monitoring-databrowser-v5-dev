@@ -74,11 +74,6 @@
 
   // --- Enforce stacking order (bottom to top) ---
   function enforceLayerOrder() {
-    console.log("Enforcing layer order...");
-
-console.log(typeof layers.hmsSmoke.bringToBack); // should be "function"
-console.log(typeof layers.purpleair.bringToFront); // should be "function"
-
     layers.hmsSmoke?.bringToBack?.();
     layers.hmsFires?.bringToBack?.();
 
@@ -286,8 +281,6 @@ console.log(typeof layers.purpleair.bringToFront); // should be "function"
     // Ensure HMS polygons and fire points are at the bottom
     enforceLayerOrder();
   }
-
-	onMount(createMap);
 
   /* ------------------------------------------------------------------------ */
   /* -------------------------- End of Map ---------------------------------- */
