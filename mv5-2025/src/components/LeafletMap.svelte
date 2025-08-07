@@ -73,15 +73,39 @@
   };
 
   // --- Enforce stacking order (bottom to top) ---
-  function enforceLayerOrder() {
+  function enforceLayerGroupOrder() {
     layers.hmsSmoke?.bringToBack?.();
     layers.hmsFires?.bringToBack?.();
 
     layers.clarity?.bringToFront?.();
     layers.purpleair?.bringToFront?.();
+    layers.airnow?.bringToFront?.();
     layers.airsis?.bringToFront?.();
     layers.wrcc?.bringToFront?.();
-    layers.airnow?.bringToFront?.();
+  }
+
+  /**
+   * Replaces the contents of a Leaflet LayerGroup with a new layer.
+   *
+   * This is useful when you're updating data reactively (e.g., from a Svelte store)
+   * but want to keep the original LayerGroup instance attached to the map and toggle control.
+   *
+   * @param {L.LayerGroup} layerGroup - The Leaflet LayerGroup to update.
+   * @param {L.Layer} newLayer - The new Leaflet layer to insert.
+   */
+  function replaceLayerContent(layerGroup, newContent) {
+    if (!layerGroup || typeof layerGroup.clearLayers !== 'function') {
+      console.warn("Invalid layerGroup passed to replaceLayerContent");
+      return;
+    }
+
+    layerGroup.clearLayers();
+
+    if (Array.isArray(newContent)) {
+      newContent.forEach(layer => layerGroup.addLayer(layer));
+    } else if (newContent) {
+      layerGroup.addLayer(newContent);
+    }
   }
 
   onMount(() => {
@@ -113,115 +137,102 @@
 
     // ----- Add Layers --------------------------------------------------------
 
-    // HMS Smoke
-    let hmsSmokeLayer = createHMSSmokeLayer($hms_smoke_geojson);
-    layers.hmsSmoke = hmsSmokeLayer.addTo(map);
+    // // HMS Smoke
+    layers.hmsSmoke = L.layerGroup().addTo(map);
+    replaceLayerContent(layers.hmsSmoke, createHMSSmokeLayer($hms_smoke_geojson));
 
     // HMS Fires
-    let hmsFiresLayer = createHMSFiresLayer_csv($hms_fires_csv);
-    layers.hmsFires = hmsFiresLayer.addTo(map);
-
-    // PurpleAir
-    let purpleairLayer = createPurpleAirLayer(purpleairCreateGeoJSON($pas));
-    layers.purpleair = purpleairLayer.addTo(map);
+    layers.hmsFires = L.layerGroup().addTo(map);
+    replaceLayerContent(layers.hmsFires, createHMSFiresLayer_csv($hms_fires_csv));
 
     // Clarity
-    let clarityLayer = createClarityLayer($clarity_geojson);
-    layers.clarity = clarityLayer.addTo(map);
+    layers.clarity = L.layerGroup().addTo(map);
+    replaceLayerContent(layers.clarity, createClarityLayer($clarity_geojson));
 
-    // AIRSIS
-    let airsisLayer = createMonitorLayer($airsis_geojson);
-    layers.airsis = airsisLayer.addTo(map);
-
-    // WRCC
-    let wrccLayer = createMonitorLayer($wrcc_geojson);
-    layers.wrcc = wrccLayer.addTo(map);
+    // // PurpleAir
+    layers.purpleair = L.layerGroup().addTo(map);
+    replaceLayerContent(layers.purpleair, createPurpleAirLayer(purpleairCreateGeoJSON($pas)));
 
     // AirNow
-    let airnowLayer = createMonitorLayer($airnow_geojson);
-    layers.airnow = airnowLayer.addTo(map);
+    layers.airnow = L.layerGroup().addTo(map);
+    replaceLayerContent(layers.airnow, createClarityLayer($airnow_geojson));
+
+    // AIRSIS
+    layers.airsis = L.layerGroup().addTo(map);
+    replaceLayerContent(layers.airsis, createClarityLayer($airsis_geojson));
+
+    // WRCC
+    layers.wrcc = L.layerGroup().addTo(map);
+    replaceLayerContent(layers.wrcc, createClarityLayer($wrcc_geojson));
 
     // ----- Subscriptions for Reactive Updates ---------------------------------
 
     // HMS Smoke
     hms_smoke_geojson.subscribe((geojson) => {
-      if (geojson) {
-        map.removeLayer(layers.hmsSmoke);
-        layers.hmsSmoke = createHMSSmokeLayer(geojson).addTo(map);
-        enforceLayerOrder();
-      }
+      const newLayer = geojson ? createHMSSmokeLayer(geojson) : null;
+      replaceLayerContent(layers.hmsSmoke, newLayer);
+      enforceLayerGroupOrder();
     });
+
 
     // HMS Fires
     hms_fires_csv.subscribe((csvData) => {
-      if (csvData) {
-        map.removeLayer(layers.hmsFires);
-        layers.hmsFires = createHMSFiresLayer_csv(csvData).addTo(map);
-        enforceLayerOrder();
-      }
-    });
-
-    // PurpleAir
-    pas.subscribe((synopticData) => {
-      if (synopticData) {
-        map.removeLayer(layers.purpleair);
-        const geojson = purpleairCreateGeoJSON(synopticData);
-        layers.purpleair = createPurpleAirLayer(geojson).addTo(map);
-        enforceLayerOrder();
-      }
+      const newMarkers = csvData ? createHMSFiresLayer_csv(csvData) : null;
+      replaceLayerContent(layers.hmsFires, newMarkers);
+      enforceLayerGroupOrder();
     });
 
     // Clarity
     clarity_geojson.subscribe((geojson) => {
-      if (geojson) {
-        map.removeLayer(layers.clarity);
-        layers.clarity = createClarityLayer(geojson).addTo(map);
-        enforceLayerOrder();
-      }
+      const newLayer = geojson ? createClarityLayer(geojson) : null;
+      replaceLayerContent(layers.clarity, newLayer);
+      enforceLayerGroupOrder();
     });
 
-    // AIRSIS
-    airsis_geojson.subscribe((geojson) => {
-      if (geojson) {
-        map.removeLayer(layers.airsis);
-        layers.airsis = createMonitorLayer(geojson).addTo(map);
-        enforceLayerOrder();
-      }
-    });
-
-    // WRCC
-    wrcc_geojson.subscribe((geojson) => {
-      if (geojson) {
-        map.removeLayer(layers.wrcc);
-        layers.wrcc = createMonitorLayer(geojson).addTo(map);
-        enforceLayerOrder();
-      }
+    // PurpleAir
+    pas.subscribe((synopticData) => {
+      const newLayer = synopticData ? createPurpleAirLayer(purpleairCreateGeoJSON($pas)) : null;
+      replaceLayerContent(layers.purpleair, newLayer);
+      enforceLayerGroupOrder();
     });
 
     // AirNow
     airnow_geojson.subscribe((geojson) => {
-      if (geojson) {
-        map.removeLayer(layers.airnow);
-        layers.airnow = createMonitorLayer(geojson).addTo(map);
-        enforceLayerOrder();
-      }
+      const newLayer = geojson ? createMonitorLayer(geojson) : null;
+      replaceLayerContent(layers.airnow, newLayer);
+      enforceLayerGroupOrder();
+    });
+
+    // AIRSIS
+    airsis_geojson.subscribe((geojson) => {
+      const newLayer = geojson ? createMonitorLayer(geojson) : null;
+      replaceLayerContent(layers.airsis, newLayer);
+      enforceLayerGroupOrder();
+    });
+
+    // WRCC
+    wrcc_geojson.subscribe((geojson) => {
+      const newLayer = geojson ? createMonitorLayer(geojson) : null;
+      replaceLayerContent(layers.wrcc, newLayer);
+      enforceLayerGroupOrder();
     });
 
     // Kick off initial load of all data
     hms_smoke_geojson.reload();
     hms_fires_csv.reload();
     clarity_geojson.reload();
+    pas.reload();
+    airnow_geojson.reload();
     airsis_geojson.reload();
     wrcc_geojson.reload();
-    airnow_geojson.reload();
     mapLastUpdated.set(DateTime.now());
 
     // Make layers toggleable
     L.control.layers(null, {
       "HMS Fires": layers.hmsFires,
       "HMS Smoke": layers.hmsSmoke,
-      "PurpleAir": layers.purpleair,
       "Clarity": layers.clarity,
+      "PurpleAir": layers.purpleair,
       "AirNow": layers.airnow,
       "AIRSIS": layers.airsis,
       "WRCC": layers.wrcc,
@@ -279,7 +290,7 @@
     });
 
     // Ensure HMS polygons and fire points are at the bottom
-    enforceLayerOrder();
+    enforceLayerGroupOrder();
   }
 
   /* ------------------------------------------------------------------------ */
@@ -507,19 +518,16 @@
 
   /* ----- HMS functions ---------------------------------------------------- */
 
+
   /**
-   * Creates a Leaflet layer group containing HMS fire detection points,
-   * rendered efficiently using a shared canvas renderer.
+   * Creates an array of Leaflet circle markers for HMS fire detections.
    *
-   * Each fire point is represented as a small orange circle marker.
-   * The layer group can be added to a map or to another parent layer group.
-   *
-   * @param {Array<Object>} csv - An array of fire detection records, each with `latitude` and `longitude` fields.
-   * @returns {L.LayerGroup} A Leaflet layer group with circle markers for all fire points.
+   * @param {Array<Object>} csv - Array of fire detection records with latitude and longitude.
+   * @returns {Array<L.CircleMarker>} Array of Leaflet circle markers.
    */
   function createHMSFiresLayer_csv(csv) {
     const renderer = L.canvas({ padding: 0.5 });
-    const layerGroup = L.layerGroup();
+    const layers = [];
 
     for (let i = 0; i < csv.length; i++) {
       const { latitude, longitude } = csv[i];
@@ -534,10 +542,10 @@
         opacity: 0.5,
       });
 
-      marker.addTo(layerGroup);
+      layers.push(marker);
     }
 
-    return layerGroup;
+    return layers;
   }
 
   /**
