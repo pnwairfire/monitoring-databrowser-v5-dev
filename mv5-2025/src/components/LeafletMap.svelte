@@ -525,26 +525,33 @@
    * @returns {Array<L.CircleMarker>} Array of Leaflet circle markers.
    */
   function createHMSFiresLayer_csv(csv) {
-    const renderer = L.canvas({ padding: 0.5 });
     const layers = [];
 
-    for (let i = 0; i < csv.length; i++) {
-      const { latitude, longitude } = csv[i];
+    // Bail out early if csv is bad/empty
+    if (!Array.isArray(csv) || csv.length === 0) return layers;
 
-      const marker = L.circleMarker([latitude, longitude], {
-        renderer,
-        radius: 3,
-        fillColor: '#d7721c',
-        fillOpacity: 0.5,
-        weight: 1.5,
-        color: "#e9c28f",
-        opacity: 0.5,
-      });
+    const renderer = L.canvas({ padding: 0.5 });
 
-      layers.push(marker);
+    for (const row of csv) {
+      const lat = Number(row?.latitude);
+      const lon = Number(row?.longitude);
+
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+
+      layers.push(
+        L.circleMarker([lat, lon], {
+          renderer,
+          radius: 3,
+          fillColor: '#d7721c',
+          fillOpacity: 0.5,
+          weight: 1.5,
+          color: '#e9c28f',
+          opacity: 0.5,
+        })
+      );
     }
 
-    return layers;
+    return layers; // array of plain Leaflet layers
   }
 
   /**
@@ -578,17 +585,6 @@
         }
       }
     })
-    // const id = $unselected_monitor_id;
-    // const layerGroups = [layers.airnow, layers.airsis, layers.wrcc];
-    // for (const grp of layerGroups) {
-    //   if (!grp) continue;
-    //   grp.eachLayer((layer) => {
-    //     if (layer && layer.id === id && typeof layer.setStyle === "function") {
-    //       layer.setStyle({weight: 1});
-    //     }
-    //   });
-    // }
-    // $unselected_monitor_id = "";
     replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids, $selected_purpleair_ids);
   }
 
