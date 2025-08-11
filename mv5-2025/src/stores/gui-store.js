@@ -35,4 +35,4 @@ export let map_update_needed = writable(false);
 export let use_hovered_purpleair = writable(false);
 export let use_hovered_clarity = writable(false);
 
-export let current_slide = writable("all");
+export let current_slide = writable("timeseries");

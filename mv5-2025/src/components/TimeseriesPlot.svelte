@@ -109,7 +109,7 @@
         chartConfig = timeseriesPlotConfig(plotData);
 
         // Remove title
-        chartConfig.title = "";
+        chartConfig.title = { text: '' };
         // Add zoom
         chartConfig.chart.zoomBySingleTouch = true;
         chartConfig.chart.zoomType = "x";
