@@ -22,7 +22,7 @@
 
   import { pas, patCart } from '../stores/purpleair-data-store.js';
 
-  import { clarity, clarity_geojson } from '../stores/clarity-data-store.js';
+  import { clarity_geojson } from '../stores/clarity-data-store.js';
 
   import { hms_fires_csv, hms_smoke_geojson } from '../stores/hms-data-store.js';
 
@@ -52,11 +52,10 @@
     purpleairCreateGeoJSON,
     purpleairPropertiesToIconOptions,
     clarityPropertiesToIconOptions,
-    HMSFiresPropertiesToIconOptions,
   } from '../js/utils-map.js';
 
   // Utility functions
-  // import { getPurpleAirData } from '../js/utils-purpleair.js';
+  import { getPurpleAirData } from '../js/utils-purpleair.js';
   import { replaceWindowHistory } from '../js/utils.js';
 
   let map;
@@ -137,7 +136,7 @@
 
     // ----- Add Layers --------------------------------------------------------
 
-    // // HMS Smoke
+    // HMS Smoke
     layers.hmsSmoke = L.layerGroup().addTo(map);
     replaceLayerContent(layers.hmsSmoke, createHMSSmokeLayer($hms_smoke_geojson));
 
@@ -149,7 +148,7 @@
     layers.clarity = L.layerGroup().addTo(map);
     replaceLayerContent(layers.clarity, createClarityLayer($clarity_geojson));
 
-    // // PurpleAir
+    // PurpleAir
     layers.purpleair = L.layerGroup().addTo(map);
     replaceLayerContent(layers.purpleair, createPurpleAirLayer(purpleairCreateGeoJSON($pas)));
 
@@ -561,7 +560,8 @@
         opacity: 0.5,
         color: 'gray',
         fillOpacity: 0.15
-      })
+      }),
+      interactive: false // <-- Prevents it from intercepting clicks
     });
     return this_layer;
   }
@@ -578,21 +578,32 @@
         }
       }
     })
-    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids); //, $selected_purpleair_ids);
+    // const id = $unselected_monitor_id;
+    // const layerGroups = [layers.airnow, layers.airsis, layers.wrcc];
+    // for (const grp of layerGroups) {
+    //   if (!grp) continue;
+    //   grp.eachLayer((layer) => {
+    //     if (layer && layer.id === id && typeof layer.setStyle === "function") {
+    //       layer.setStyle({weight: 1});
+    //     }
+    //   });
+    // }
+    // $unselected_monitor_id = "";
+    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids, $selected_purpleair_ids);
   }
 
   // Watcher for map-external sensor deselect events
-  // $: if ($unselected_purpleair_id !== "") {
-  //   map.eachLayer(function(layer) {
-  //     if (layer instanceof L.ShapeMarker) {
-  //       if (layer.id == $unselected_purpleair_id) {
-  //         layer.setStyle({opacity: 0.2, weight: 1});
-  //         $unselected_purpleair_id = "";
-  //       }
-  //     }
-  //   })
-  //   replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids); //, $selected_clarity_ids);
-  // }
+  $: if ($unselected_purpleair_id !== "") {
+    map.eachLayer(function(layer) {
+      if (layer instanceof L.ShapeMarker) {
+        if (layer.id == $unselected_purpleair_id) {
+          layer.setStyle({opacity: 0.2, weight: 1});
+          $unselected_purpleair_id = "";
+        }
+      }
+    })
+    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids, $selected_clarity_ids);
+  }
 
   // Watcher for map-external sensor deselect events
   $: if ($unselected_clarity_id !== "") {

@@ -11,8 +11,7 @@ import { all_monitors } from '../stores/monitor-data-store.js';
 import { pas } from '../stores/purpleair-data-store.js';
 import { clarity_geojson } from '../stores/clarity-data-store.js';
 
-// Make these statements reactive
-// $: location_report_url = 'https://tools.airfire.org/location/report?monitorid=' + id;
+// Reactive statement
 $: airnow_qc_report_url = 'https://tools.airfire.org/monitor-airnow-qc-report/v1/airnow?aqsid=' + $all_monitors.getMetadata(id, 'AQSID');
 
 function create_temp_qc_report_url(id) {
@@ -78,16 +77,8 @@ function clarityIdToCurrentStatus(id) {
 // "last_latency":"  1"
 // "yesterday_PM2.5_avg":" 3.5"
 
-  let dataIngestSource = "Clarity";
-
   let features = $clarity_geojson.features;
-
-  let currentStatus;
-  features.forEach(o => {
-    if ( o.properties.deviceDeploymentID === id ) currentStatus = o.properties;
-  });
-let currentStatus = features.find(o => o.properties.deviceDeploymentID === id)?.properties || {};
-
+  const currentStatus = features.find(o => o.properties.deviceDeploymentID === id)?.properties || {};
   return(currentStatus);
 
 }
