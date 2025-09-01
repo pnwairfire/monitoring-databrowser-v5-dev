@@ -126,7 +126,7 @@
         pm25_addAQIStackedBar(myChart, 4);
       } else {
         chartConfig = hourlyBarplotConfig(plotData);
-        chartConfig.title = ""; // Remove main title
+        chartConfig.title = { text: '' }; // Remove main title
         chartConfig.yAxis.title.text = "NowCast (µg/m³)";
         chartConfig.chart.zoomBySingleTouch = true;
         chartConfig.chart.zoomType = "x";
