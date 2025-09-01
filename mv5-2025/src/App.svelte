@@ -35,6 +35,8 @@
   import MiniMap from "./components/MiniMap.svelte";
   import TimeseriesPlot from "./components/TimeseriesPlot.svelte";
 	import HourlyBarplot from "./components/HourlyBarplot.svelte";
+	import DailyBarplot from "./components/DailyBarplot.svelte";
+	import DiurnalPlot from "./components/DiurnalPlot.svelte";
 
   // Force loading to ensure ~Count is updated
   onMount(() => {
@@ -137,17 +139,17 @@
 						<div class="flex-row">
 							<MiniMap element_id="row{i}_map" width="200px" height="180px" id={id}/>
 							<TimeseriesPlot element_id="row{i}_small_timeseries" width="200px" height="200px" id={id}  size="small"/>
-							<!-- <DailyBarplot element_id="row{i}_small_daily" width="200px" height="200px" id={id}  size="small"/>
-							<DiurnalPlot element_id="row{i}_small_diurnal" width="200px" height="200px" id={id}  size="small"/> -->
+							<DailyBarplot element_id="row{i}_small_daily" width="200px" height="200px" id={id}  size="small"/>
+							<DiurnalPlot element_id="row{i}_small_diurnal" width="200px" height="200px" id={id}  size="small"/>
 						</div>
 					{:else if $current_slide === "timeseries"}
 						<TimeseriesPlot element_id="row{i}_timeseries" width="800px" height="200px" id={id}  size="large"/>
 					{:else if $current_slide === "hourly"}
 						<HourlyBarplot element_id="row{i}_hourly" width="800px" height="200px" id={id}  size="large"/>
-					<!-- {:else if $current_slide === "daily"}
+					{:else if $current_slide === "daily"}
 						<DailyBarplot element_id="row{i}_daily" width="800px" height="200px" id={id}  size="large"/>
 					{:else if $current_slide === "diurnal"}
-						<DiurnalPlot element_id="row{i}_diurnal" width="800px" height="200px" id={id}  size="large"/> -->
+						<DiurnalPlot element_id="row{i}_diurnal" width="800px" height="200px" id={id}  size="large"/>
 					{/if}
 					<SlideAdvance element_id="row{i}_slideAdvance"/>
 				</div>
