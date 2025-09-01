@@ -32,6 +32,7 @@
 	import RemoveRowButton from "./components/RemoveRowButton.svelte";
 	import SlideAdvance from "./components/SlideAdvance.svelte";
   import MetadataBox from "./components/MetadataBox.svelte";
+  import MiniMap from "./components/MiniMap.svelte";
   import TimeseriesPlot from "./components/TimeseriesPlot.svelte";
 	import HourlyBarplot from "./components/HourlyBarplot.svelte";
 
@@ -134,7 +135,7 @@
 				<div class="flex-row">
 					{#if $current_slide === "all"}
 						<div class="flex-row">
-							<!-- <MiniMap element_id="row{i}_map" width="200px" height="180px" id={id}/> -->
+							<MiniMap element_id="row{i}_map" width="200px" height="180px" id={id}/>
 							<TimeseriesPlot element_id="row{i}_small_timeseries" width="200px" height="200px" id={id}  size="small"/>
 							<!-- <DailyBarplot element_id="row{i}_small_daily" width="200px" height="200px" id={id}  size="small"/>
 							<DiurnalPlot element_id="row{i}_small_diurnal" width="200px" height="200px" id={id}  size="small"/> -->
