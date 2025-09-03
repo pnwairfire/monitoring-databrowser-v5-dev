@@ -237,7 +237,7 @@
       "WRCC": layers.wrcc,
     }).addTo(map);
 
-    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids); //, $selected_purpleair_ids);
+    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids, $selected_purpleair_ids);
 
     // ----- Add lastUpdated  custom control -----------------------------------
 
@@ -270,13 +270,13 @@
     map.on("moveend", function() {
       $centerLat = map.getCenter().lat;
       $centerLon = map.getCenter().lng;
-      replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids); //, $selected_purpleair_ids);
+      replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids, $selected_purpleair_ids);
     })
 
     // Update browser URL when zooming
     map.on("zoomend", function() {
       $zoom = map.getZoom();
-      replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids); //, $selected_purpleair_ids);
+      replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids, $selected_purpleair_ids);
     })
 
     // Ensure "hovered" plot is not shown after leaving the map
@@ -357,7 +357,7 @@
       e.target.setStyle({ weight: 3 });
     }
 
-    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids);
+    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids, $selected_purpleair_ids);
   }
 
   /* ----- Clarity functions ------------------------------------------------ */
@@ -426,7 +426,7 @@
       e.target.setStyle({ opacity: 1.0, weight: 2 });
     }
 
-    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids, $selected_clarity_ids);
+    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids, $selected_purpleair_ids);
   }
 
   /* ----- PurpleAir functions ---------------------------------------------- */
@@ -512,7 +512,7 @@
       // patCart.removeItem({ id });
     }
 
-    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids);
+    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids, $selected_purpleair_ids);
   }
 
   /* ----- HMS functions ---------------------------------------------------- */
@@ -525,10 +525,10 @@
    * @returns {Array<L.CircleMarker>} Array of Leaflet circle markers.
    */
   function createHMSFiresLayer_csv(csv) {
-    const layers = [];
+    const circleMarkers = [];
 
     // Bail out early if csv is bad/empty
-    if (!Array.isArray(csv) || csv.length === 0) return layers;
+    if (!Array.isArray(csv) || csv.length === 0) return circleMarkers;
 
     const renderer = L.canvas({ padding: 0.5 });
 
@@ -538,7 +538,7 @@
 
       if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
 
-      layers.push(
+      circleMarkers.push(
         L.circleMarker([lat, lon], {
           renderer,
           radius: 3,
@@ -551,7 +551,7 @@
       );
     }
 
-    return layers; // array of plain Leaflet layers
+    return circleMarkers; // array of plain Leaflet circleMarkers
   }
 
   /**
@@ -575,43 +575,85 @@
 
   /* ----- Other functions -------------------------------------------------- */
 
-  // Watcher for map-external monitor deselect events
+  // Minimal helper: walk any Layer/FeatureGroup/GeoJSON tree
+  function forEachLeaf(layerOrGroup, fn) {
+    if (layerOrGroup && typeof layerOrGroup.eachLayer === 'function') {
+      layerOrGroup.eachLayer(child => forEachLeaf(child, fn));
+    } else if (layerOrGroup) {
+      fn(layerOrGroup);
+    }
+  }
+
+  // Watcher for map-external monitor deselect events (LayerGroup-aware)
   $: if ($unselected_monitor_id !== "") {
-    map.eachLayer(function(layer) {
-      if (layer instanceof L.ShapeMarker) {
-        if (layer.id == $unselected_monitor_id) {
-          layer.setStyle({weight: 1});
-          $unselected_monitor_id = "";
+    if (layers?.airnow) {
+      forEachLeaf(layers.airnow, (layer) => {
+        // Only shape markers created by createMonitorLayer
+        if (layer instanceof L.ShapeMarker &&
+            layer.feature?.properties?.deviceDeploymentID === $unselected_monitor_id) {
+          layer.setStyle({ weight: 1 });
         }
-      }
-    })
-    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_clarity_ids, $selected_purpleair_ids);
+      });
+    }
+    if (layers?.airsis) {
+      forEachLeaf(layers.airsis, (layer) => {
+        if (layer instanceof L.ShapeMarker &&
+            layer.feature?.properties?.deviceDeploymentID === $unselected_monitor_id) {
+          layer.setStyle({ weight: 1 });
+        }
+      });
+    }
+    if (layers?.wrcc) {
+      forEachLeaf(layers.wrcc, (layer) => {
+        if (layer instanceof L.ShapeMarker &&
+            layer.feature?.properties?.deviceDeploymentID === $unselected_monitor_id) {
+          layer.setStyle({ weight: 1 });
+        }
+      });
+    }
+
+    // Clear the flag and update history
+    $unselected_monitor_id = "";
+    replaceWindowHistory(
+      $centerLat, $centerLon, $zoom,
+      $selected_monitor_ids, $selected_clarity_ids, $selected_purpleair_ids
+    );
   }
 
-  // Watcher for map-external sensor deselect events
-  $: if ($unselected_purpleair_id !== "") {
-    map.eachLayer(function(layer) {
-      if (layer instanceof L.ShapeMarker) {
-        if (layer.id == $unselected_purpleair_id) {
-          layer.setStyle({opacity: 0.2, weight: 1});
-          $unselected_purpleair_id = "";
-        }
-      }
-    })
-    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids, $selected_clarity_ids);
-  }
-
-  // Watcher for map-external sensor deselect events
+  // Watcher for map-external Clarity deselect events
   $: if ($unselected_clarity_id !== "") {
-    map.eachLayer(function(layer) {
-      if (layer instanceof L.ShapeMarker) {
-        if (layer.id == $unselected_clarity_id) {
-          layer.setStyle({opacity: 0.2, weight: 1});
-          $unselected_clarity_id = "";
+    if (layers?.clarity) {
+      forEachLeaf(layers.clarity, (layer) => {
+        if (layer instanceof L.ShapeMarker &&
+            layer.feature?.properties?.deviceDeploymentID === $unselected_clarity_id) {
+          layer.setStyle({ opacity: 0.2, weight: 1 });
         }
-      }
-    })
-    replaceWindowHistory($centerLat, $centerLon, $zoom, $selected_monitor_ids, $selected_purpleair_ids, $selected_clarity_ids);
+      });
+    }
+    // Clear the flag and update history
+    $unselected_clarity_id = "";
+    replaceWindowHistory(
+      $centerLat, $centerLon, $zoom,
+      $selected_monitor_ids, $selected_clarity_ids, $selected_purpleair_ids
+    );
+  }
+
+  // Watcher for map-external PurpleAir deselect events
+  $: if ($unselected_purpleair_id !== "") {
+    if (layers?.purpleair) {
+      forEachLeaf(layers.purpleair, (layer) => {
+        if (layer instanceof L.ShapeMarker &&
+            layer.feature?.properties?.deviceDeploymentID === $unselected_purpleair_id) {
+          layer.setStyle({ opacity: 0.2, weight: 1 });
+        }
+      });
+    }
+    // Clear the flag and update history
+    $unselected_purpleair_id = "";
+    replaceWindowHistory(
+      $centerLat, $centerLon, $zoom,
+      $selected_monitor_ids, $selected_clarity_ids, $selected_purpleair_ids
+    );
   }
 
 </script>

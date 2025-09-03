@@ -2,75 +2,106 @@
 //
 // NOTE:  These functions do not need access to any reactive variables.
 
-// Replace window history without reloading the page.
+/**
+ * Update the URL (without reloading) to reflect current map state.
+ * Accepts numeric center/zoom and string[] id lists.
+ *
+ * @param {number | null | undefined} centerlat
+ * @param {number | null | undefined} centerlon
+ * @param {number | null | undefined} zoom
+ * @param {string[] | string | null | undefined} monitor_ids
+ * @param {string[] | string | null | undefined} clarity_ids
+ * @param {string[] | string | null | undefined} purpleair_ids
+ */
 export function replaceWindowHistory(
-  centerlat = "",
-  centerlon = "",
-  zoom = "",
-  monitors = "",
-  purpleair = "",
-  clarity = ""
+  centerlat,
+  centerlon,
+  zoom,
+  monitor_ids,
+  clarity_ids,
+  purpleair_ids
 ) {
   const params = new URLSearchParams();
 
-  if (centerlat !== "") {
+  // numbers: accept finite numbers; ignore null/undefined/NaN
+  if (Number.isFinite(centerlat)) {
     params.set("centerlat", (Math.round(centerlat * 10000) / 10000).toString());
   }
-
-  if (centerlon !== "") {
+  if (Number.isFinite(centerlon)) {
     params.set("centerlon", (Math.round(centerlon * 10000) / 10000).toString());
   }
-
-  if (zoom !== "") {
-    params.set("zoom", zoom.toString());
+  if (Number.isFinite(zoom)) {
+    params.set("zoom", Number(zoom).toString());
   }
 
-  if (Array.isArray(monitors) && monitors.length > 0) {
-    params.set("monitors", monitors.join(","));
-  }
+  // normalize lists: allow string[] or a comma-delimited string; drop empties; de-dupe; stable sort
+  const normList = (v) => {
+    const arr =
+      Array.isArray(v) ? v :
+      (typeof v === "string" ? v.split(",") : []);
+    const cleaned = arr.map(s => String(s).trim()).filter(Boolean);
+    // optional: stabilize order so the URL is deterministic for same selection
+    return Array.from(new Set(cleaned)).sort();
+  };
 
-  if (Array.isArray(purpleair) && purpleair.length > 0) {
-    params.set("purpleair", purpleair.join(","));
-  }
+  const monitors = normList(monitor_ids);
+  const purpleair = normList(purpleair_ids);
+  const clarity = normList(clarity_ids);
 
-  if (Array.isArray(clarity) && clarity.length > 0) {
-    params.set("clarity", clarity.join(","));
-  }
+  if (monitors.length) params.set("monitors", monitors.join(","));
+  if (purpleair.length) params.set("purpleair", purpleair.join(","));
+  if (clarity.length) params.set("clarity", clarity.join(","));
 
   const base = window.location.origin + window.location.pathname;
-  const url = `${base}?${params.toString()}`;
+  const qs = params.toString();
+  const url = qs ? `${base}?${qs}` : base;
 
   window.history.replaceState(null, "Monitoring v5", url);
 }
 
-// Parse window URL
+/**
+ * Parse strongly-typed values out of the current window location.
+ * Returns numbers for center/zoom and string[] for id lists.
+ */
 export function parseWindowQueryParams() {
   const params = new URLSearchParams(window.location.search);
 
-  const result = {};
+  const result = /** @type {{
+    centerlat?: number,
+    centerlon?: number,
+    zoom?: number,
+    monitors?: string[],
+    purpleair?: string[],
+    clarity?: string[]
+  }} */ ({});
+
+  const toNum = (s, parser) => {
+    const n = parser(s);
+    return Number.isFinite(n) ? n : undefined;
+  };
+  const toList = (s) =>
+    s.split(",").map(x => x.trim()).filter(Boolean);
 
   if (params.has("centerlat")) {
-    result.centerlat = parseFloat(params.get("centerlat"));
+    const v = toNum(params.get("centerlat"), parseFloat);
+    if (v !== undefined) result.centerlat = v;
   }
-
   if (params.has("centerlon")) {
-    result.centerlon = parseFloat(params.get("centerlon"));
+    const v = toNum(params.get("centerlon"), parseFloat);
+    if (v !== undefined) result.centerlon = v;
   }
-
   if (params.has("zoom")) {
-    result.zoom = parseInt(params.get("zoom"), 10);
+    const v = toNum(params.get("zoom"), (x) => parseInt(x, 10));
+    if (v !== undefined) result.zoom = v;
   }
-
   if (params.has("monitors")) {
-    result.monitors = params.get("monitors").split(",").filter(Boolean);
+    result.monitors = toList(params.get("monitors"));
   }
-
   if (params.has("purpleair")) {
-    result.purpleair = params.get("purpleair").split(",").filter(Boolean);
+    result.purpleair = toList(params.get("purpleair"));
   }
-
   if (params.has("clarity")) {
-    result.clarity = params.get("clarity").split(",").filter(Boolean);
+    result.clarity = toList(params.get("clarity"));
   }
 
   return result;
