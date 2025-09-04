@@ -38,6 +38,12 @@
 	import DailyBarplot from "./components/DailyBarplot.svelte";
 	import DiurnalPlot from "./components/DiurnalPlot.svelte";
 
+	import {
+		createAQINowCastServiceUrl,
+		createDataServiceUrl
+	} from './js/utils.js';
+
+
   // Force loading to ensure ~Count is updated
   onMount(() => {
     pas.load?.();
@@ -124,6 +130,13 @@
 		<div class="flex-row">
 			<span class="selected-devices">Selected Monitors:</span>
 			<span class="selected-devices-count">{$selected_monitor_ids.length} monitors</span>
+			<div id="service-links">
+				<a target="_blank" rel="noreferrer" href="https://airfire-monitoring-guis.s3.us-west-2.amazonaws.com/ara/v5/real-time-temporary/index.html">Temporary Only</a>
+				{#if $selected_monitor_ids.length > 0}
+				<a target="_blank" rel="noreferrer" href="{createDataServiceUrl($selected_monitor_ids)}">CSV File</a>
+				<a target="_blank" rel="noreferrer" href="{createAQINowCastServiceUrl($selected_monitor_ids)}">AQI-NowCast</a>
+				{/if}
+			</div>
 		</div>
 
 		<hr>
@@ -256,6 +269,15 @@
 		text-align: left;
 		margin: 10px 0 0 10px;
 		font-size: 0.8rem;
+	}
+
+	div#service-links {
+		text-align: center;
+		padding-left: 400px
+	}
+
+	#service-links a {
+		padding: 0px 10px;
 	}
 
 	span.selected-devices {

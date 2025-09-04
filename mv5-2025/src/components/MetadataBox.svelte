@@ -11,10 +11,10 @@ import { all_monitors } from '../stores/monitor-data-store.js';
 import { pas } from '../stores/purpleair-data-store.js';
 import { clarity_geojson } from '../stores/clarity-data-store.js';
 
-// Reactive statement
-// TODO: fix reacti e airnow_qc_report_url
-// // //$: airnow_qc_report_url = 'https://tools.airfire.org/monitor-airnow-qc-report/v1/airnow?aqsid=' + $all_monitors.getMetadata(id, 'AQSID');
-$: airnow_qc_report_url = 'https://tools.airfire.org/monitor-airnow-qc-report/v1/airnow?aqsid=';
+function create_airnow_qc_report_url(id) {
+  const url = 'https://tools.airfire.org/monitor-airnow-qc-report/v1/airnow?aqsid=' + $all_monitors.getMetadata(id, 'AQSID');
+  return url;
+}
 
 function create_temp_qc_report_url(id) {
   let url;
@@ -103,7 +103,7 @@ function clarityIdToCurrentStatus(id) {
     AQSID:&nbsp;&nbsp;{$all_monitors.getMetadata(id, 'AQSID')}<br>
     Source:&nbsp;&nbsp;{$all_monitors.getMetadata(id, 'dataIngestSource')}
     {#if $all_monitors.getMetadata(id, 'dataIngestSource') === 'AirNow' }
-      <a class="qc-report" target="_blank" rel=noreferrer href="{airnow_qc_report_url}">QC</a>
+      <a class="qc-report" target="_blank" rel=noreferrer href="{create_airnow_qc_report_url(id)}">QC</a>
     {:else}
       <a class="qc-report" target="_blank" rel=noreferrer href="{create_temp_qc_report_url(id)}">QC</a>
     {/if}
