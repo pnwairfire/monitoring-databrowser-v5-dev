@@ -75,7 +75,7 @@
         let purpleairData = $patCart.items[index].data;
         // epa_pm25,epa_nowcast,local_ts
         // 9.1,9.9,2023-07-05 12:00:00-0700
-        let datetime = purpleairData.map((o) => new Date(o.local_ts));
+        let datetime = purpleairData.map((o) => o.datetime);
         let pm25 = purpleairData.map((o) => o.epa_pm25);
 
         let site = $pas.filter(o => o.sensor_index == id)[0];

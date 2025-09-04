@@ -327,7 +327,7 @@
       // Icon behavior
       onEachFeature: function (feature, layer) {
         layer.on('mouseover', function (e) {
-          // $use_hovered_purpleair = false;
+          $use_hovered_purpleair = false;
           $use_hovered_clarity = false;
           $hovered_monitor_id = feature.properties.deviceDeploymentID;
         });

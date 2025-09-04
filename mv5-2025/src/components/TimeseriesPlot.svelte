@@ -73,7 +73,7 @@
         let site = $pas.filter(o => o.sensor_index == id)[0];
 
         plotData = {
-          datetime: purpleairData.map((o) => new Date(o.local_ts)),
+          datetime: purpleairData.map((o) => o.datetime),
           pm25: purpleairData.map((o) => o.epa_pm25),
           nowcast: purpleairData.map((o) => o.epa_nowcast),
           locationName: "PurpleAir " + id,

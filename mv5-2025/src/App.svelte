@@ -128,9 +128,9 @@
 
 		<hr>
 
-
 		{#each $selected_monitor_ids as id, i}
 
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
 			<div class="flex-row" on:mouseenter={unselectHovered}>
 				<RemoveRowButton id={id}/>
 				<MetadataBox element_id="row{i}_metadata" width="300px" height="200px" id={id}/>
@@ -154,6 +154,80 @@
 					<SlideAdvance element_id="row{i}_slideAdvance"/>
 				</div>
 			</div>
+
+		{/each}
+
+		<hr>
+
+		<div class="flex-row">
+			<span class="selected-devices">Selected PurpleAir Sensors:</span>
+			<span class="selected-devices-count">{$selected_purpleair_ids.length} sensors</span>
+		</div>
+
+		<hr>
+
+		{#each $selected_purpleair_ids as id, i}
+
+			<div class="flex-row">
+				<RemoveRowButton id={id} deviceType="purpleair"/>
+				<MetadataBox element_id="purpleair_row{i}_metadata" width="300px" height="200px" id={id} deviceType="purpleair"/>
+				<div class="flex-row">
+					{#if $current_slide === "all"}
+						<div class="flex-row">
+							<MiniMap element_id="purpleair_row{i}_map" width="200px" height="180px" id={id} deviceType="purpleair"/>
+							<TimeseriesPlot element_id="purpleair_row{i}_small_timeseries" width="200px" height="200px" id={id} size="small" deviceType="purpleair"/>
+							<DailyBarplot element_id="purpleair_row{i}_small_daily" width="200px" height="200px" id={id} size="small" deviceType="purpleair"/>
+							<DiurnalPlot element_id="purpleair_row{i}_small_diurnal" width="200px" height="200px" id={id} size="small" deviceType="purpleair"/>
+						</div>
+						{:else if $current_slide === "timeseries"}
+							<TimeseriesPlot element_id="purpleair_row{i}_timeseries" width="800px" height="200px" id={id} size="large" deviceType="purpleair"/>
+						{:else if $current_slide === "hourly"}
+							<HourlyBarplot element_id="purpleair_row{i}_hourly" width="800px" height="200px" id={id} size="large" deviceType="purpleair"/>
+						{:else if $current_slide === "daily"}
+							<DailyBarplot element_id="purpleair_row{i}_daily" width="800px" height="200px" id={id} size="large" deviceType="purpleair"/>
+						{:else if $current_slide === "diurnal"}
+							<DiurnalPlot element_id="purpleair_row{i}_diurnal" width="800px" height="200px" id={id} size="large" deviceType="purpleair"/>
+						{/if}
+						<SlideAdvance element_id="purpleair_row{i}_SlideAdvance"/>
+					</div>
+				</div>
+
+		{/each}
+
+		<hr>
+
+		<div class="flex-row">
+			<span class="selected-devices">Selected Clarity Sensors:</span>
+			<span class="selected-devices-count">{$selected_clarity_ids.length} sensors</span>
+		</div>
+
+		<hr>
+
+		{#each $selected_clarity_ids as id, i}
+
+			<div class="flex-row">
+				<RemoveRowButton id={id} deviceType="clarity"/>
+				<MetadataBox element_id="clarity_row{i}_metadata" width="300px" height="200px" id={id} deviceType="clarity"/>
+				<div class="flex-row">
+					{#if $current_slide === "all"}
+						<div class="flex-row">
+							<MiniMap element_id="clarity_row{i}_map" width="200px" height="180px" id={id} deviceType="clarity"/>
+							<TimeseriesPlot element_id="clarity_row{i}_small_timeseries" width="200px" height="200px" id={id} size="small" deviceType="clarity"/>
+							<DailyBarplot element_id="clarity_row{i}_small_daily" width="200px" height="200px" id={id} size="small" deviceType="clarity"/>
+							<DiurnalPlot element_id="clarity_row{i}_small_diurnal" width="200px" height="200px" id={id} size="small" deviceType="clarity"/>
+						</div>
+						{:else if $current_slide === "timeseries"}
+							<TimeseriesPlot element_id="clarity_row{i}_timeseries" width="800px" height="200px" id={id} size="large" deviceType="clarity"/>
+						{:else if $current_slide === "hourly"}
+							<HourlyBarplot element_id="clarity_row{i}_hourly" width="800px" height="200px" id={id} size="large" deviceType="clarity"/>
+						{:else if $current_slide === "daily"}
+							<DailyBarplot element_id="clarity_row{i}_daily" width="800px" height="200px" id={id} size="large" deviceType="clarity"/>
+						{:else if $current_slide === "diurnal"}
+							<DiurnalPlot element_id="clarity_row{i}_diurnal" width="800px" height="200px" id={id} size="large" deviceType="clarity"/>
+						{/if}
+						<SlideAdvance element_id="clarity_row{i}_SlideAdvance"/>
+					</div>
+				</div>
 
 		{/each}
 
